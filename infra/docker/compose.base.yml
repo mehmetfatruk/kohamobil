@@ -1,0 +1,146 @@
+# MirAkıl Kütüphane — temel servisler (CENTRAL ve ON_PREMISE için ortak).
+# Secret'lar repoda DEĞİL, SECRETS_DIR altındaki dosyalardadır (scripts/generate-secrets.sh).
+# Kullanım: docs/DEVELOPMENT.md ve docs/DEPLOYMENT.md
+
+name: mirakil
+
+x-app-env: &app-env
+  NODE_ENV: ${NODE_ENV:-production}
+  DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-CENTRAL}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  PUBLIC_API_URL: ${PUBLIC_API_URL:?PUBLIC_API_URL tanımlanmalı}
+  DATABASE_HOST: postgres
+  DATABASE_NAME: ${POSTGRES_DB:-mirakil}
+  DATABASE_USER: ${POSTGRES_USER:-mirakil}
+  DATABASE_PASSWORD_FILE: /run/secrets/postgres_password
+  REDIS_HOST: redis
+  REDIS_PASSWORD_FILE: /run/secrets/redis_password
+
+x-app: &app
+  image: ${REGISTRY:-mirakil}/kutuphane-api:${API_VERSION:-latest-dev}
+  build:
+    context: ../..
+    dockerfile: infra/docker/api.Dockerfile
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+  environment: *app-env
+  secrets: [postgres_password, redis_password]
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+  networks: [backend]
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mirakil}
+      POSTGRES_USER: ${POSTGRES_USER:-mirakil}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets: [postgres_password]
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    mem_limit: ${POSTGRES_MEM_LIMIT:-2g}
+    networks: [backend]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Parola secret dosyasından okunur; komut satırında görünmesin diye config dosyasına yazılır.
+    entrypoint:
+      - sh
+      - -c
+      - |
+        printf 'requirepass %s\nappendonly yes\nmaxmemory %s\nmaxmemory-policy noeviction\n' \
+          "$$(cat /run/secrets/redis_password)" "$${REDIS_MAXMEMORY}" > /tmp/redis.conf
+        exec redis-server /tmp/redis.conf
+    environment:
+      REDIS_MAXMEMORY: ${REDIS_MAXMEMORY:-384mb}
+    secrets: [redis_password]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'REDISCLI_AUTH="$$(cat /run/secrets/redis_password)" redis-cli ping | grep -q PONG',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    mem_limit: ${REDIS_MEM_LIMIT:-512m}
+    networks: [backend]
+
+  api:
+    <<: *app
+    command: ['node', 'dist/main.js']
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    mem_limit: ${API_MEM_LIMIT:-512m}
+    networks: [backend, edge]
+
+  worker:
+    <<: *app
+    command: ['node', 'dist/worker.js']
+    mem_limit: ${WORKER_MEM_LIMIT:-512m}
+
+  admin:
+    image: ${REGISTRY:-mirakil}/kutuphane-admin:${ADMIN_VERSION:-latest-dev}
+    build:
+      context: ../..
+      dockerfile: infra/docker/admin.Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp, /var/cache/nginx, /var/run]
+    mem_limit: 128m
+    networks: [edge]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ['80:80', '443:443', '443:443/udp']
+    environment:
+      API_HOST: ${API_HOST:-api.koha-tr.com}
+      DIRECTORY_HOST: ${DIRECTORY_HOST:-directory.koha-tr.com}
+      ADMIN_HOST: ${ADMIN_HOST:-admin.koha-tr.com}
+      APP_HOST: ${APP_HOST:-app.koha-tr.com}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL tanımlanmalı}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [api, admin]
+    mem_limit: 128m
+    networks: [edge]
+
+secrets:
+  postgres_password:
+    file: ${SECRETS_DIR:-./.secrets}/postgres_password
+  redis_password:
+    file: ${SECRETS_DIR:-./.secrets}/redis_password
+
+volumes:
+  postgres-data:
+  redis-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  backend:
+    internal: true
+  edge:

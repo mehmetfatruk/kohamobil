@@ -1,0 +1,28 @@
+{
+  "name": "@mirakil/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tasarım token'ları ve kurum renklerinden erişilebilir (WCAG AA) tema üretimi",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@mirakil/config": "workspace:*",
+    "eslint": "^9.39.5",
+    "vitest": "^5.0.3"
+  }
+}

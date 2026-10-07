@@ -1,0 +1,27 @@
+{
+  "name": "mirakil-kutuphane",
+  "private": true,
+  "description": "MirAkıl Kütüphane — Koha kütüphane yönetim sistemleri ile entegre çalışan multi-tenant mobil kütüphane uygulaması",
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "secrets:scan": "gitleaks git --redact --verbose",
+    "prepare": "lefthook install || true"
+  },
+  "devDependencies": {
+    "lefthook": "^2.1.17",
+    "prettier": "^3.9.9",
+    "turbo": "^2.11.7",
+    "typescript": "~5.9.3"
+  }
+}

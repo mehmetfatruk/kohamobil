@@ -1,0 +1,10 @@
+# gitleaks yapılandırması — varsayılan kural setini genişletir.
+title = "MirAkıl Kütüphane secret taraması"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Örnek ortam dosyalarındaki yer tutucular"
+regexes = ['''CHANGE_ME''']
+paths = ['''pnpm-lock\.yaml''']

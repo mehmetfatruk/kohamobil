@@ -1,0 +1,15 @@
+# Yerel geliştirme: yalnızca PostgreSQL ve Redis konteynerde; api/worker/mobil/admin
+# makinede `pnpm dev` ile çalışır. Portlar yalnızca 127.0.0.1'e açılır.
+#
+#   scripts/generate-secrets.sh
+#   docker compose -f infra/docker/compose.base.yml -f infra/docker/compose.dev.yml up -d postgres redis
+
+services:
+  postgres:
+    ports: ['127.0.0.1:5432:5432']
+  redis:
+    ports: ['127.0.0.1:6379:6379']
+
+networks:
+  backend:
+    internal: false

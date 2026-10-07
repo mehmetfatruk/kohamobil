@@ -1,0 +1,16 @@
+# Git hook'ları — `pnpm install` sırasında otomatik kurulur.
+pre-commit:
+  parallel: true
+  commands:
+    gitleaks:
+      # Staged değişikliklerde secret taraması. gitleaks kurulu değilse uyarı verir
+      # (CI'da her durumda zorunlu olarak çalışır).
+      run: |
+        if command -v gitleaks >/dev/null 2>&1; then
+          gitleaks git --pre-commit --staged --redact --no-banner
+        else
+          echo "UYARI: gitleaks kurulu değil; secret taraması CI'da yapılacak. https://github.com/gitleaks/gitleaks"
+        fi
+    prettier:
+      glob: '*.{ts,tsx,js,mjs,cjs,json,yml,yaml}'
+      run: pnpm exec prettier --check {staged_files}

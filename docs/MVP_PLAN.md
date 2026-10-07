@@ -48,21 +48,21 @@ hatırlatma push bildirimi alması.
 
 ### Faz 0 — Temel ve Doğrulama (1–2 hafta)
 
-- [ ] Monorepo iskeleti: pnpm + Turborepo, `packages/config`, lint/format/typecheck, CI
-- [ ] `infra/docker/compose.base.yml` + `compose.dev.yml`: PostgreSQL, Redis, api, worker, Caddy
-- [ ] KTD sürüm matrisi (≈ 22.05 → güncel) + örnek veri; `docs/KOHA_COMPATIBILITY.md` üretimi
-- [ ] `packages/koha-client` uyumluluk katmanı çekirdeği: capability sözlüğü, OpenAPI'den tespit, strateji çözümleyici, destek seviyesi
+- [x] Monorepo iskeleti: pnpm + Turborepo, `packages/config`, lint/format/typecheck, CI
+- [x] `infra/docker/compose.base.yml` + `compose.dev.yml`: PostgreSQL, Redis, api, worker, Caddy
+- [ ] KTD sürüm matrisi (≈ 22.05 → güncel) + örnek veri; `docs/KOHA_COMPATIBILITY.md` üretimi — betikler hazır (`infra/ktd`), çalıştırma bekliyor
+- [x] `packages/koha-client` uyumluluk katmanı çekirdeği: capability sözlüğü, OpenAPI'den tespit, strateji çözümleyici, destek seviyesi, `probe` aracı
 - [ ] **Koha spike:** [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md) §3 tablosundaki her endpoint'in
       gerçek sürümlerde doğrulanması, fixture'ların kaydedilmesi, belgede "≈" işaretlerinin kaldırılması
 - [x] Tüm mimari kararlar (D1–D21)
-- [ ] Secret yönetimi temeli: `.gitignore`, `.env.example` dosyaları, gitleaks pre-commit + CI
+- [x] Secret yönetimi temeli: `.gitignore`, `.env.example` dosyaları, gitleaks pre-commit + CI
 
 **Çıktı:** Çalışan boş api/mobile/admin uygulamaları, doğrulanmış Koha yetenek matrisi.
 
 ### Faz 1 — Backend Çekirdeği (3–4 hafta)
 
 - [ ] Prisma şeması + RLS migration'ları, seed
-- [ ] `RequestContext`, correlation ID, problem details filtresi, pino redact, Sentry
+- [ ] `RequestContext` (AsyncLocalStorage), Sentry/GlitchTip — correlation ID, Problem Details filtresi ve pino redact Faz 0'da eklendi
 - [ ] Envelope encryption servisi + `KeyProvider` (dosya; OpenBao implementasyonu)
 - [ ] `StorageProvider` (yerel disk + S3 uyumlu)
 - [ ] Tenant modülü + Tenant Directory uçları (`deploymentMode`, `apiBaseUrl`, imzalı yanıt) + public config + feature flags

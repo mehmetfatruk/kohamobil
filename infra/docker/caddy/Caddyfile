@@ -1,0 +1,45 @@
+# TLS sertifikaları Let's Encrypt ile otomatik alınır ve yenilenir.
+{
+	email {$ACME_EMAIL}
+}
+
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+}
+
+# Gateway API (mobil + admin API)
+{$API_HOST} {
+	import security_headers
+	reverse_proxy api:3000
+}
+
+# Tenant Directory — MVP'de Gateway ile aynı uygulama
+{$DIRECTORY_HOST} {
+	import security_headers
+	@directory path /mobile/v1/tenants /mobile/v1/tenants/* /health/*
+	handle @directory {
+		reverse_proxy api:3000
+	}
+	handle {
+		respond 404
+	}
+}
+
+# Yönetim paneli (gerekirse IP kısıtı: `@blocked not remote_ip 1.2.3.4/32`)
+{$ADMIN_HOST} {
+	import security_headers
+	header Content-Security-Policy "default-src 'self'; connect-src 'self' https://{$API_HOST}; frame-ancestors 'none'"
+	reverse_proxy admin:8080
+}
+
+# Universal Links / App Links ve yasal sayfalar (Faz 2'de içerik eklenecek)
+{$APP_HOST} {
+	import security_headers
+	respond /health "ok" 200
+	respond 404
+}

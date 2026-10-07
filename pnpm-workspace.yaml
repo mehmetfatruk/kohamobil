@@ -1,0 +1,10 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Kurulum betiği çalıştırmasına izin verilen paketler (pnpm 10 varsayılan olarak engeller)
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - lefthook
+  - msgpackr-extract

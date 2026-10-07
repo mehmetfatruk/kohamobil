@@ -1,0 +1,40 @@
+# Bağımlılıklar ve çıktılar
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+apps/mobile/ios/
+apps/mobile/android/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# Ortam ve secret dosyaları — ASLA commit edilmez (bkz. docs/DEPLOYMENT.md §8)
+.env
+.env.*
+!.env.example
+!**/*.env.example
+*.env
+secrets/
+.secrets/
+*.pem
+*.key
+
+# Editör / işletim sistemi
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# Yerel Redis dökümü
+dump.rdb
