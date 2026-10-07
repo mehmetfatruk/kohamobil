@@ -285,7 +285,7 @@ kurumlara dağıtmak güvenli değildir. Öneri: **MirAkıl Push Relay** (merkez
 
 | Ortam | Yer | Not |
 |---|---|---|
-| `local` | Geliştirici makinesi, `compose.dev.yml` | KTD ile Koha 24.05 / 25.11 |
+| `local` | Geliştirici makinesi, `compose.dev.yml` | KTD ile sürüm matrisinden seçilen Koha'lar |
 | `staging` | Türkiye'de ayrı sunucu | Test Koha'ları + pilot kurumların test Koha'ları |
 | `production` | Türkiye'de CENTRAL kurulum | Pilot kurumlar |
 

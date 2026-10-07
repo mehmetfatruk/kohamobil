@@ -1,14 +1,13 @@
 # KOHA_INTEGRATION — Koha Entegrasyon Katmanı
 
 > Durum: **Taslak v0.2.** Kararlar: **MirAkıl Koha eklentisi geliştirilecek (D1)** ·
-> **desteklenen en düşük Koha sürümü 24.05 (D2)**. Bu doküman Gateway'in Koha sunucularıyla nasıl konuştuğunu, hangi
+> **sürüm farkları uyumluluk katmanında yönetilir; en düşük sürüm teknik olarak belirlenir (D2 revize)**. Bu doküman Gateway'in Koha sunucularıyla nasıl konuştuğunu, hangi
 > işlemlerin Koha core REST API ile doğrudan yapılabildiğini ve hangileri için MirAkıl Koha
 > Plugin'i gerektiğini tanımlar.
 >
 > ⚠️ **Doğrulama notu:** Endpoint'lerin hangi Koha sürümünde eklendiği bilgisi bilinen Koha geliştirme
-> geçmişine dayanır ve "≈" ile işaretlenmiştir. En düşük sürüm 24.05 olduğundan §3'teki core uçların
-> büyük çoğunluğunun desteklenen tüm sürümlerde bulunması beklenir. Faz 0'da **koha-testing-docker (KTD)**
-> ile 24.05, 24.11, 25.05 ve 25.11 üzerinde tek tek doğrulanacak ve bu doküman güncellenecektir. Mimari bu belirsizliği
+> geçmişine dayanır ve "≈" ile işaretlenmiştir. Faz 0'da **koha-testing-docker (KTD)** ile geniş bir sürüm
+> matrisinde (≈ 22.05 → güncel sürüm) tek tek doğrulanacak ve bu doküman güncellenecektir. Mimari bu belirsizliği
 > **capability tespiti** ile tolere edecek şekilde tasarlanmıştır.
 
 ## 1. Bağlantı Modeli
@@ -51,7 +50,8 @@ Bağlantı testi bu yetkileri **örnek salt-okunur çağrılarla** sınar ve eks
 
 Pilot kurumun sağlayacağı Koha test ortamında (üretimden ayrı) bulunması gerekenler:
 
-- [ ] Koha sürümü 24.05 veya üzeri, **HTTPS** ile erişilebilir REST API (`/api/v1/`)
+- [ ] Koha sürüm bilgisi (pilot için güncel bir sürüm olabilir; ürün bu sürüme bağımlı tasarlanmaz) ve
+      **HTTPS** ile erişilebilir REST API (`/api/v1/`, `RESTPublicAPI` gerekmez)
 - [ ] `RESTOAuth2ClientCredentials` açık; servis hesabı (§1.1 yetkileriyle) ve API anahtarı (client id/secret)
       — secret, MirAkıl'a güvenli kanaldan iletilir ve yalnızca admin panelinden girilir (repoya/e-postaya yazılmaz)
 - [ ] Pilot sunucunun sabit çıkış IP'si Koha test ortamında allowlist'te
@@ -65,78 +65,122 @@ Pilot kurumun sağlayacağı Koha test ortamında (üretimden ayrı) bulunması 
 - [ ] Arama motoru bilgisi (Zebra / Elasticsearch) ve MARC formatı (MARC21 / UNIMARC)
 - [ ] Test sırasında dolaşım işlemi (ödünç verme/iade) yapabilecek bir personel kullanıcısı (senaryo hazırlamak için)
 
-## 2. Adapter Mimarisi
+## 2. Uyumluluk (Compatibility) Katmanı
+
+> **D2 (revize):** Desteklenen en düşük Koha sürümü **sabit bir ürün kuralı değildir**. Uygulamanın
+> ihtiyaç duyduğu yeteneklere göre teknik olarak belirlenir ve sürüm farkları yalnızca bu katmanda
+> yönetilir. Gateway'in geri kalanı (modüller, DTO'lar, mobil API) Koha sürümünü **bilmez**.
+
+### 2.1 İlke: sürüm değil yetenek
+
+Kod hiçbir yerde `if (version >= 24.05)` yazmaz. Bunun yerine:
+
+1. **Yetenek tespiti (probe):** Bağlantı testinde Koha'nın ne sunduğu çıkarılır (OpenAPI path'leri, eklenti
+   `info`, OPAC sürüm bilgisi, ILS-DI açık mı) → `Capabilities`.
+2. **Strateji seçimi:** Her Gateway işlemi (ör. `renewCheckout`) için sıralı bir **strateji listesi**
+   vardır. Her strateji hangi yeteneklere ihtiyaç duyduğunu bildirir. `CompatibilityResolver` her işlem için
+   yetenekleri karşılayan ilk stratejiyi seçer → **uyumluluk profili** (`CompatibilityProfile`).
+3. **Profil saklanır:** `tenant_koha_connections.capabilities` ve `compat_profile` (JSONB). Yeniden tespit:
+   günlük `tenant-health` job'ı ve admin "Bağlantıyı test et".
+4. **Efektif özellik:** Bir işlem için uygun strateji yoksa ilgili feature otomatik kapanır
+   (`adminFlag && profil[işlem] != null`).
 
 ```mermaid
-classDiagram
-  class KohaAdapter {
-    <<interface>>
-    +getCapabilities() Capabilities
-    +ping() HealthResult
-    +validatePatronCredentials(identifier, password) PatronIdentity
-    +getPatron(ctx) KohaPatron
-    +getAccountSummary(ctx) AccountSummary
-    +getAccountTransactions(ctx, page) AccountLine[]
-    +listCheckouts(ctx) Checkout[]
-    +listCheckoutHistory(ctx, page) Checkout[]
-    +checkRenewability(ctx, checkoutId) Renewability
-    +renewCheckout(ctx, checkoutId) Checkout
-    +listHolds(ctx, scope) Hold[]
-    +checkHoldability(ctx, biblioId, itemId?) Holdability
-    +placeHold(ctx, request) Hold
-    +cancelHold(ctx, holdId) void
-    +changePassword(ctx, current, next) void
-    +search(query) SearchResult
-    +getBiblio(biblioId) Biblio
-    +getBiblioItems(biblioId) Item[]
-    +listLibraries() Library[]
-    +bulkDueCheckouts(window) DueCheckout[]
-    +bulkWaitingHolds(since) WaitingHold[]
-  }
-  class BaseRestAdapter {
-    #http: KohaHttpClient
-    #mapper: KohaErrorMapper
-    #marc: MarcNormalizer
-  }
-  class Koha2511Adapter
-  class Koha2405Adapter
-  class PluginAugmentation {
-    <<decorator>>
-    search, holdHistory, bulkRenewability, libraryHours, sysprefs
-  }
-  KohaAdapter <|.. BaseRestAdapter
-  BaseRestAdapter <|-- Koha2511Adapter
-  BaseRestAdapter <|-- Koha2405Adapter
-  KohaAdapter <|.. PluginAugmentation
-  PluginAugmentation o-- KohaAdapter : wraps
+flowchart LR
+  subgraph Gateway modülleri — sürümden habersiz
+    L[LoansService] --> KA
+    H[HoldsService] --> KA
+    C[CatalogService] --> KA
+  end
+  KA[[KohaAdapter arayüzü]] --> CG[KohaCompatGateway]
+  CG --> PR[(CompatibilityProfile<br/>tenant başına)]
+  CG --> S1[Strateji: Plugin]
+  CG --> S2[Strateji: REST varyant A]
+  CG --> S3[Strateji: REST varyant B]
+  CG --> S4[Strateji: ILS-DI / OPAC fallback]
+  S1 & S2 & S3 & S4 --> HTTP[KohaHttpClient<br/>auth, timeout, retry, circuit breaker]
 ```
+
+Örnek — yenileme:
+
+| Öncelik | Strateji | Gerekli yetenek | Not |
+|---|---|---|---|
+| 1 | `RestRenewalsStrategy` | `POST /checkouts/{checkout_id}/renewals` | Yeni sürümlerdeki çoğul uç (≈) |
+| 2 | `RestRenewalStrategy` | `POST /checkouts/{checkout_id}/renewal` | Eski tekil uç (≈ 19.05+) |
+| 3 | `IlsdiRenewLoanStrategy` | ILS-DI `RenewLoan` açık | Yalnızca REST uçları yoksa (gerekirse) |
+
+Örnek — kullanıcı doğrulama:
+
+| Öncelik | Strateji | Gerekli yetenek |
+|---|---|---|
+| 1 | `RestPasswordValidationIdentifier` | `POST /auth/password/validation` + `identifier` alanı |
+| 2 | `RestPasswordValidationUserid` | aynı uç, yalnızca `userid`/`cardnumber` alanları (önce userid, sonra cardnumber denenir) |
+| 3 | `PluginAuthenticateStrategy` | MirAkıl eklentisi `POST /contrib/mirakil/auth/validate` |
+| 4 | `IlsdiAuthenticatePatronStrategy` | ILS-DI `AuthenticatePatron` (+ `ILS-DI:AuthorizedIPs`) |
+
+### 2.2 Bileşenler (`packages/koha-client`)
+
+```
+src/
+  adapter.ts            KohaAdapter arayüzü (Gateway'in tek bildiği şey)
+  capabilities/         Capability sözlüğü, OpenAPI spec'ten tespit, sürüm ayrıştırma
+  compat/
+    operations.ts       İşlem → sıralı strateji listesi (tek yerde, okunabilir tablo)
+    resolver.ts         CompatibilityResolver → CompatibilityProfile
+    support-level.ts    FULL / LIMITED / UNSUPPORTED hesaplama
+    strategies/         rest/, plugin/, ilsdi/ — sürüm farkları yalnızca burada
+  http/                 KohaHttpClient (OAuth2/Basic, timeout, retry, circuit breaker)
+  errors/               Koha → Gateway hata eşleme (sürüm farkları dahil)
+  marc/                 MARC21 / UNIMARC normalizer
+```
+
+### 2.3 Destek seviyeleri ve minimum sürümün belirlenmesi
+
+| Seviye | Koşul | Davranış |
+|---|---|---|
+| `FULL` | Tüm MVP işlemleri için strateji var | Tüm özellikler açılabilir |
+| `LIMITED` | **Zorunlu çekirdek** var, bazı isteğe bağlı işlemler yok | Tenant aktifleştirilebilir; eksik özellikler otomatik kapalı, panelde listelenir |
+| `UNSUPPORTED` | Zorunlu çekirdekten en az biri yok | Tenant aktifleştirilemez; panelde eksik yetenek(ler) gösterilir |
+
+**Zorunlu çekirdek** (bunlar olmadan uygulama anlamlı çalışmaz):
+
+1. Servis kimlik doğrulaması (OAuth2 client credentials **veya** Basic auth)
+2. Patron kimlik doğrulaması (§2.1'deki stratejilerden biri)
+3. Patron bilgisi okuma
+4. Aktif ödünçleri listeleme
+
+**İsteğe bağlı** (yoksa özellik kapanır): yenilenebilirlik/yenileme, rezervasyon listeleme/oluşturma/iptal,
+teslim şubeleri, borç özeti ve hareketleri, katalog arama ve kayıt detayı, şubeler, şifre değiştirme,
+okuma geçmişi, toplu bildirim verisi.
+
+**Minimum desteklenen sürüm** = zorunlu çekirdeği sağlayan en eski Koha sürümüdür ve **Faz 0 sürüm matrisi
+testinin çıktısı** olarak ilan edilir (`docs/KOHA_COMPATIBILITY.md`, otomatik üretilen tablo). Hedef:
+Koha topluluğunun hâlâ yaygın kullanılan sürümlerini (≈ 22.11 ve sonrası; mümkünse daha eskisi) kapsamak.
+ILS-DI stratejileri yalnızca matriste gerçekten fark yaratıyorsa yazılır.
+
+### 2.4 Kurallar
 
 - **`ctx: PatronContext`** = `{ tenantId, kohaPatronId, correlationId }`. Adapter metotları serbest
   `patronId` almaz; context yalnızca auth katmanı tarafından oluşturulabilir (branded type).
-- **Adapter seçimi:** `tenant_koha_connections.adapter_key = auto` ise tespit edilen sürüme göre:
-  - `≥ 25.05` → `Koha2511Adapter` (en güncel davranış seti)
-  - `24.05 – 24.11` → `Koha2405Adapter`
-  - `< 24.05` → **desteklenmez**: bağlantı testi `KOHA_VERSION_UNSUPPORTED` döndürür ve tenant aktifleştirilemez.
-    `LegacyKohaAdapter` / ILS-DI geliştirilmeyecektir (D2).
-  - Yeni bir Koha sürümü çıktığında önce contract testleri çalıştırılır; davranış farkı yoksa mevcut
-    adapter'a eşlenir, fark varsa yeni adapter alt sınıfı eklenir.
-- **Davranış seçimi capability'lere göredir.** Örn. `Koha2405Adapter.listHolds('past')` önce
-  `capabilities.holds.history`'e bakar; plugin varsa plugin'i, yoksa `FEATURE_UNSUPPORTED` döndürür.
-- **`PluginAugmentation` decorator'ı:** Plugin kurulu tenant'larda belirli metotları plugin
-  uçlarına yönlendirir; diğerlerini alttaki adapter'a bırakır.
-- **Contract testleri:** `packages/koha-client/test/contract/*` her adapter için aynı test setini,
-  KTD üzerinde gerçek Koha'ya karşı çalıştırır. Gerçek yanıtlar `fixtures/{version}/` altında saklanır.
+- Yeni Koha sürümü çıktığında: sürüm matrisi CI'da çalıştırılır; fark varsa **yeni strateji** eklenir,
+  mevcut kod değiştirilmez. Sürüme özel kod dosya adında açıkça belirtilir (ör. `renewals.rest-plural.ts`).
+- Yanıt alan adı farkları (ör. eklenen/yeniden adlandırılan alanlar) stratejinin içindeki mapper'da çözülür;
+  normalize DTO tek tiptir.
+- Eklenti, uygun olduğu her işlemde **en öncelikli strateji** olabilir; eklenti yoksa core REST'e düşülür.
+- **Contract testleri:** `packages/koha-client/test/contract/*` aynı senaryo setini KTD üzerinde her sürüme karşı
+  çalıştırır ve sonuçtan `KOHA_COMPATIBILITY.md` tablosunu üretir. Gerçek yanıtlar `fixtures/{version}/` altında.
 
-### 2.1 Sürüm ve yetenek tespiti
+### 2.5 Sürüm ve yetenek tespiti
 
-1. Plugin varsa: `GET /api/v1/contrib/mirakil/info` → kesin Koha sürümü, `marcflavour`, arama motoru,
+1. Eklenti varsa: `GET /api/v1/contrib/mirakil/info` → kesin Koha sürümü, `marcflavour`, arama motoru,
    ilgili syspref'ler.
-2. Plugin yoksa:
-   - `GET /api/v1/` (OpenAPI spec) → **mevcut path'lerin listesi** üzerinden capability çıkarımı
-     (ör. `/auth/password/validation` var mı, `/checkouts/{id}/allows_renewal` var mı).
-   - Sürüm için OPAC ana sayfasındaki `<meta name="generator" content="Koha xx.xx...">` okunur (≈).
-3. Sonuç `tenant_koha_connections.capabilities` (JSONB) olarak saklanır; `tenant-health` job'ı
-   günde bir ve admin "Bağlantıyı test et" dediğinde yeniler.
+2. Eklenti yoksa:
+   - `GET /api/v1/` (OpenAPI spec) → **mevcut path + metot listesi** ve istek şemalarındaki alanlar
+     (ör. `/auth/password/validation` isteğinde `identifier` var mı) üzerinden yetenek çıkarımı.
+   - Sürüm (yalnızca bilgi amaçlı, karar için kullanılmaz): OPAC sayfasındaki
+     `<meta name="generator" content="Koha xx.xx...">` (≈).
+   - ILS-DI: `/cgi-bin/koha/ilsdi.pl?service=Describe` yanıtı (yalnızca ILS-DI stratejisi gerekiyorsa).
+3. Sonuç `capabilities` + `compat_profile` + `support_level` olarak saklanır.
 
 Örnek capability seti:
 
@@ -230,7 +274,9 @@ Yollar `https://KOHA-SERVER/api/v1` altındadır.
 - **Yalnızca okuma ve sınırlı, beyaz listeli** işlevler sunar; Koha DB'sine dışarıdan bağlantı açılmaz
   (plugin Koha process'i içinde çalışır).
 - Sürümleme: semver; Gateway plugin sürümünü `info`'dan okur ve uyumluluk matrisi tutar.
-- Desteklenen Koha sürümleri: **24.05 ve üzeri** (eklentinin `minimum_version` meta verisi `24.05`).
+- Desteklenen Koha sürümleri: mümkün olan en geniş aralık. Eklentinin `minimum_version` değeri,
+  kullandığı Koha Perl API'lerinin sürüm matrisinde doğrulanmasıyla belirlenir; sürüme özgü farklar eklenti
+  içinde de küçük bir uyumluluk modülünde toplanır.
 - Eklenti yalnızca Koha'nın kendi Perl API'lerini (`Koha::Patrons`, `Koha::Checkouts`, `Koha::Holds`,
   `Koha::SearchEngine`, `C4::Context->preference`) kullanır; doğrudan SQL yazmaz (sürüm uyumu için).
 - Kurumlar için kurulum rehberi `docs/koha-plugin-install.md` (Faz 2).
@@ -347,8 +393,10 @@ yalnızca Gateway `ErrorCode` + yerelleştirilmiş mesaj gider.
 ## 9. Test Stratejisi
 
 - **Unit:** mapper, normalizer, error mapper (fixture tabanlı).
-- **Contract:** Her adapter, KTD'de ayağa kaldırılan Koha sürümlerine karşı (`24.05`, `24.11`, `25.05`,
-  `25.11`), eklentili ve eklentisiz. CI'da nightly.
-- **Sürüm reddi:** 23.11 KTD'ye karşı bağlantı testinin `KOHA_VERSION_UNSUPPORTED` döndürdüğü doğrulanır.
+- **Contract / sürüm matrisi:** Aynı senaryo seti KTD'de ayağa kaldırılan her Koha sürümüne karşı
+  (hedef: ≈ 22.05, 22.11, 23.05, 23.11, 24.05, 24.11, 25.05, 25.11 ve `main`), eklentili ve eklentisiz;
+  CI'da nightly. Çıktı: `docs/KOHA_COMPATIBILITY.md` (işlem × sürüm → seçilen strateji / yok).
+- **Destek seviyesi:** Zorunlu çekirdeği sağlamayan bir sürümde bağlantı testinin `UNSUPPORTED` ve eksik
+  yetenek listesini döndürdüğü doğrulanır.
 - **Kayıt/yeniden oynatma:** Gerçek kurum Koha'larından (izinle, anonimleştirilmiş) alınan yanıt örnekleri.
 - **Kaos:** Koha yavaş/çöken senaryolarda circuit breaker ve diğer tenant'ların etkilenmediği doğrulanır.

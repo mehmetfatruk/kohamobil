@@ -5,7 +5,7 @@ Onaylanan ve açık kalan mimari kararlar. Her karar ilgili dokümanda uygulanm�
 | # | Karar | Durum | Tarih | İlgili doküman |
 |---|---|---|---|---|
 | D1 | **MirAkıl Koha eklentisi geliştirilecek** (`Koha::Plugin::Com::MirAkil::Mobile`, `/api/v1/contrib/mirakil/...`): arama, sistem tercihleri, geçmiş rezervasyonlar, toplu yenilenebilirlik, toplu bildirim verisi | ✅ Onaylandı | 2026-10-07 | [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md) |
-| D2 | **Desteklenen en düşük Koha sürümü 24.05.** Daha eski sürümler bağlantı testinde reddedilir; `LegacyKohaAdapter` / ILS-DI geliştirilmez | ✅ Onaylandı | 2026-10-07 | [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md) |
+| D2 | **(Revize)** En düşük Koha sürümü sabit ürün kuralı **değildir**; zorunlu yeteneklere göre Faz 0 sürüm matrisiyle teknik olarak belirlenir. Sürüm farkları yalnızca `koha-client` uyumluluk katmanında (yetenek tespiti + strateji seçimi) yönetilir; geniş sürüm desteği hedeflenir. Pilot güncel sürüm olabilir, mimari ona bağlı olmaz | ✅ Onaylandı (revize) | 2026-10-07 | [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md) |
 | D3 | **ORM: Prisma** (RLS için transaction içinde `set_config`) | ✅ Onaylandı | 2026-10-07 | [DATABASE.md](./DATABASE.md) |
 | D4 | **Bildirimler: `NotificationProvider` soyut katmanı; ilk provider Expo.** Mobil, ilk sürümden itibaren Expo token'ının yanında native FCM/APNs token'ını da kaydeder; Expo'dan çıkış yalnızca backend yapılandırmasıyla yapılabilir | ✅ Onaylandı | 2026-10-07 | [NOTIFICATIONS.md](./NOTIFICATIONS.md) |
 | D5 | **Push içeriğinde kişisel veri yok** (kitap adı, kullanıcı adı, tutar, tarih vb.); push yalnızca genel metin + opak ID taşır, ayrıntı uygulama içinde kimliği doğrulanmış API'den gelir | ✅ Onaylandı | 2026-10-07 | [NOTIFICATIONS.md §5](./NOTIFICATIONS.md) |

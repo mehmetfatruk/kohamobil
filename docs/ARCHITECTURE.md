@@ -20,7 +20,7 @@
 | Kurum seçimi | İlk açılışta seçim, cihazda saklama, "Kurum Değiştir" | `GET /mobile/v1/tenants` + `expo-secure-store` |
 | White-label | Logo, renkler, kurum adı; MirAkıl markası korunur | Runtime theming (tenant config), statik uygulama kabuğu |
 | Kimlik doğrulama | KOHA (MVP), LDAP/SAML/OIDC (gelecek) | `AuthProvider` strateji arayüzü, kendi JWT + refresh token rotasyonu |
-| Koha sürüm farkları | En düşük **24.05**; 24.11, 25.05, 25.11… | `KohaAdapter` arayüzü + **yetenek (capability) tespiti** + MirAkıl Koha eklentisi |
+| Koha sürüm farkları | Mümkün olan en geniş sürüm aralığı; en düşük sürüm teknik olarak belirlenir | `KohaAdapter` arayüzü + **uyumluluk katmanı** (yetenek tespiti + strateji seçimi) + MirAkıl Koha eklentisi |
 | Güvenlik | Tenant izolasyonu, rate limit, şifreli secret, audit, correlation ID | NestJS guard'ları, PostgreSQL RLS, envelope encryption, OpenTelemetry |
 | Bildirim | Push (MVP: Expo; ileride FCM/APNs), tercihler, tekrarsız bildirim, kişisel veri içermeyen push | BullMQ worker'lar, dedupe anahtarı (unique index), `NotificationProvider` soyut katmanı |
 | Barındırma | Türkiye tercihli, Docker tabanlı, sağlayıcıdan bağımsız; `CENTRAL` / `ON_PREMISE` | Docker Compose, açık kaynak bileşenler, Tenant Directory ([DEPLOYMENT.md](./DEPLOYMENT.md)) |
@@ -120,7 +120,7 @@ flowchart LR
 
   subgraph Tenants["Kurum Koha Sunucuları"]
     K1[Koha A 25.11<br/>+ MirAkıl Plugin]
-    K2[Koha B 24.05<br/>+ MirAkıl Plugin]
+    K2[Koha B 23.11<br/>+ MirAkıl Plugin]
     K3[Koha C 24.11<br/>eklentisiz, sınırlı mod]
   end
 
@@ -270,7 +270,7 @@ sequenceDiagram
   GW->>GW: FeatureGuard (loans açık mı?)
   GW->>R: cache: loans:{tid}:{uid}
   alt cache yok / taze değil
-    GW->>GW: AdapterFactory.for(tenant) → Koha2511Adapter
+    GW->>GW: KohaCompatGateway.for(tenant) → profil: loans.list = rest.checkouts
     GW->>K: GET /api/v1/checkouts?patron_id={sunucudaki patronId}
     K-->>GW: 200 [...]
     GW->>GW: Normalize → LoanDto[] (patron_id sızdırılmaz)
@@ -461,7 +461,7 @@ CENTRAL (MVP) — Türkiye'deki VPS / özel sunucu / MirAkıl sunucusu, Docker C
   ├─ minio / disk, openbao, gözlemlenebilirlik (opsiyonel compose dosyaları)
   └─ sabit çıkış IP'si  ← kurum Koha firewall allowlist'i için
 ON_PREMISE (sonraki faz) — aynı image'lar kurumun veri merkezinde, tek tenant'lı
-Ortamlar: local (compose.dev) · staging (KTD: 24.05, 24.11, 25.05, 25.11) · production
+Ortamlar: local (compose.dev) · staging (KTD sürüm matrisi) · production
 ```
 
 Geliştirme ve entegrasyon testleri için **KTD (koha-testing-docker)** ile farklı Koha sürümleri
@@ -492,7 +492,7 @@ kohamobil/
 │  ├─ types/                  zod şemaları, DTO, ErrorCode, FeatureFlags
 │  ├─ api-client/             OpenAPI tabanlı tipli istemci
 │  ├─ koha-client/            KohaAdapter, sürüm adapter'ları, MARC normalizer, error mapper
-│  │  ├─ src/adapters/        base, koha-2405, koha-2511
+│  │  ├─ src/compat/          operations, resolver, strategies/{rest,plugin,ilsdi}
 │  │  ├─ src/capabilities/    capability probe
 │  │  ├─ src/marc/            marc21, unimarc
 │  │  └─ test/fixtures/       sürüm bazlı gerçek yanıt örnekleri
@@ -524,7 +524,7 @@ Tüm kararlar ve durumları [DECISIONS.md](./DECISIONS.md) dosyasında tutulur. 
 | # | Karar | Durum |
 |---|---|---|
 | D1 | MirAkıl Koha eklentisi geliştirilecek | ✅ |
-| D2 | En düşük Koha sürümü 24.05 | ✅ |
+| D2 | (Revize) En düşük Koha sürümü yeteneklere göre teknik olarak belirlenir; farklar uyumluluk katmanında | ✅ |
 | D3 | ORM: Prisma | ✅ |
 | D4 | `NotificationProvider` soyut katmanı, ilk provider Expo | ✅ |
 | D5 | Push içeriğinde kişisel veri yok | ✅ |

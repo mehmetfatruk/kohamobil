@@ -445,7 +445,10 @@ Bağlantı testi yanıtı:
     "reachable": true, "tls": "valid", "latencyMs": 182,
     "authentication": "ok",
     "detectedVersion": "25.11.02",
-    "adapter": "koha2511",
+    "supportLevel": "FULL",
+    "compatProfile": { "auth.validate": "rest.passwordValidation.identifier",
+                       "loans.renew": "rest.renewals", "catalog.search": "plugin.search" },
+    "missingCapabilities": [],
     "plugin": { "installed": true, "version": "1.0.0" },
     "capabilities": {
       "auth.passwordValidation": true, "loans.list": true, "loans.renewability": true,

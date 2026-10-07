@@ -5,7 +5,7 @@
 
 ## 1. MVP Tanımı
 
-**Hedef:** `CENTRAL` modelde, Türkiye'de barındırılan merkezi backend ile 2–3 pilot kurumun (Koha 24.05+, farklı sürümler) öğrencilerinin, mağazadan indirdikleri tek
+**Hedef:** `CENTRAL` modelde, Türkiye'de barındırılan merkezi backend ile 2–3 pilot kurumun (farklı Koha sürümleri) öğrencilerinin, mağazadan indirdikleri tek
 uygulama ile kurumlarını seçip giriş yaparak ödünçlerini görmesi/yenilemesi, rezervasyonlarını
 görmesi/iptal etmesi, katalogda arayıp rezervasyon yapması, borcunu ve profilini görmesi ve iade
 hatırlatma push bildirimi alması.
@@ -30,7 +30,7 @@ hatırlatma push bildirimi alması.
 | i18n / tema | Türkçe + İngilizce, dark mode |
 | Admin | Kurum CRUD, tema/logo, Koha bağlantısı + test, capability görüntüleme, feature flags, çalışma saatleri, duyurular, son Koha hataları, temel istatistik |
 | Güvenlik | Tenant izolasyonu (guard + RLS), rate limit, şifreli secret, audit log, correlation ID, Sentry |
-| Koha | En düşük 24.05; `Koha2405Adapter`, `Koha2511Adapter`, sürüm reddi (< 24.05), MirAkıl Koha eklentisi v1 (info + search + toplu yenilenebilirlik + toplu iade verisi) |
+| Koha | Uyumluluk katmanı (yetenek tespiti, strateji seçimi, FULL/LIMITED/UNSUPPORTED), sürüm matrisiyle belirlenen minimum sürüm, MirAkıl Koha eklentisi v1 (info + search + toplu yenilenebilirlik + toplu iade verisi) |
 | Barındırma | Docker Compose ile `CENTRAL` kurulum (Türkiye), Tenant Directory uçları, self-hosted gözlemlenebilirlik, yedekleme |
 
 ### 1.2 MVP'de YOK (sonraki fazlar)
@@ -50,7 +50,8 @@ hatırlatma push bildirimi alması.
 
 - [ ] Monorepo iskeleti: pnpm + Turborepo, `packages/config`, lint/format/typecheck, CI
 - [ ] `infra/docker/compose.base.yml` + `compose.dev.yml`: PostgreSQL, Redis, api, worker, Caddy
-- [ ] KTD ile 24.05, 24.11, 25.05 ve 25.11 test Koha'ları + örnek veri
+- [ ] KTD sürüm matrisi (≈ 22.05 → güncel) + örnek veri; `docs/KOHA_COMPATIBILITY.md` üretimi
+- [ ] `packages/koha-client` uyumluluk katmanı çekirdeği: capability sözlüğü, OpenAPI'den tespit, strateji çözümleyici, destek seviyesi
 - [ ] **Koha spike:** [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md) §3 tablosundaki her endpoint'in
       gerçek sürümlerde doğrulanması, fixture'ların kaydedilmesi, belgede "≈" işaretlerinin kaldırılması
 - [x] Tüm mimari kararlar (D1–D21)
@@ -66,7 +67,7 @@ hatırlatma push bildirimi alması.
 - [ ] `StorageProvider` (yerel disk + S3 uyumlu)
 - [ ] Tenant modülü + Tenant Directory uçları (`deploymentMode`, `apiBaseUrl`, imzalı yanıt) + public config + feature flags
 - [ ] `packages/koha-client`: HTTP istemci (OAuth2 token cache, timeout, circuit breaker),
-      `KohaAdapter`, `Koha2405Adapter`, `Koha2511Adapter`, capability probe, sürüm reddi (< 24.05), error mapper, MARC21 normalizer
+      `KohaAdapter`, REST/eklenti stratejileri, error mapper, MARC21 normalizer
 - [ ] Auth modülü: KOHA provider, JWT, refresh rotation + reuse detection, logout
 - [ ] `/me`, `/me/summary`, `/me/card`, `/loans` (+renewability, renew), `/holds` (list, cancel), `/fines`, `/libraries`
 - [ ] Rate limiting, audit log, self-hosted GlitchTip entegrasyonu
@@ -90,7 +91,7 @@ hatırlatma push bildirimi alması.
 
 ### Faz 3 — Katalog + Rezervasyon Oluşturma + Plugin v1 (2–3 hafta)
 
-- [ ] MirAkıl Koha eklentisi v1: `info`, `search`, `patrons/{id}/renewability`, `notices/due` (Koha 24.05+)
+- [ ] MirAkıl Koha eklentisi v1: `info`, `search`, `patrons/{id}/renewability`, `notices/due` (sürüm matrisinde doğrulanan aralık)
 - [ ] Search strategy (plugin → SRU fallback), MARC21 (+ UNIMARC temel) normalizer
 - [ ] Kapak proxy + cache
 - [ ] Mobil: arama ekranı (alan seçimi), sonuç kartı, detay, nüsha listesi, Rezervasyon Yap (teslim şubesi seçimi)
@@ -138,7 +139,8 @@ hatırlatma push bildirimi alması.
 
 ## 4. Kabul Kriterleri (MVP)
 
-- İki farklı Koha sürümündeki (≥ 24.05) iki tenant ile aynı uygulama sürümü sorunsuz çalışır; 24.05 altı Koha bağlantı testinde reddedilir.
+- Birbirinden uzak iki Koha sürümündeki iki tenant ile aynı uygulama sürümü sorunsuz çalışır; zorunlu çekirdeği sağlamayan Koha bağlantı testinde `UNSUPPORTED` olarak işaretlenir.
+- Gateway modüllerinde Koha sürümüne göre dallanan kod yoktur (yalnızca `koha-client/compat`).
 - Push payload'larında kişisel veri bulunmaz (otomatik sözleşme testi yeşil).
 - Bildirim sağlayıcısı yalnızca backend yapılandırmasıyla değiştirilebilir (mobilde kod değişikliği gerekmez; testle gösterilir).
 - Sistem, belirli bir bulut sağlayıcısına bağlı olmadan temiz bir Linux sunucuda Docker Compose ile kurulabilir.
@@ -156,7 +158,7 @@ hatırlatma push bildirimi alması.
 |---|---|---|
 | Kurum Koha'sı internetten erişilemiyor | Kurum devreye alınamaz | Sabit çıkış IP'si + allowlist; ileride `ON_PREMISE` kurulum |
 | Kurum plugin kurmak istemiyor | Arama yok/sınırlı | SRU/RSS fallback; `catalogSearch` kapalı devreye alma |
-| Koha sürüm farkları beklenenden büyük | Adapter maliyeti artar | Faz 0 spike + contract testleri; en düşük sürüm 24.05 |
+| Koha sürüm farkları beklenenden büyük | Adapter maliyeti artar | Uyumluluk katmanı + sürüm matrisi CI'ı; farklar strateji olarak eklenir |
 | Expo'ya bağımlılık / KVKK görüşünün olumsuz çıkması | Bildirim altyapısı değişmeli | `NotificationProvider` + native token kaydı → yalnızca backend değişikliği; gerekirse data-only push |
 | Self-hosted işletim yükü (yedek, izleme, güncelleme) | Operasyon maliyeti | Compose dosyaları, otomatik yedek + aylık geri yükleme testi, runbook'lar |
 | Servis hesabının geniş yetkisi | Gateway açığı = kurumun tüm patronları | Minimum yetki, IDOR testleri, audit, pentest |

@@ -79,9 +79,10 @@ erDiagram
     text client_id
     bytea client_secret_enc
     text secret_key_version
-    text adapter_key "koha2511 | koha2405 | legacy | auto"
-    text detected_version
+    text detected_version "yalnızca bilgi amaçlı"
     jsonb capabilities
+    jsonb compat_profile "işlem → seçilen strateji"
+    text support_level "FULL | LIMITED | UNSUPPORTED"
     boolean plugin_installed
     text plugin_version
     int timeout_ms
@@ -443,4 +444,4 @@ Yazma işlemi (yenileme, rezervasyon, iptal) sonrası ilgili kullanıcı cache'l
 
 - Prisma migrate; RLS policy'leri ve partition'lar SQL migration olarak (`prisma/migrations/*/migration.sql`).
 - CI'da `prisma migrate diff` ile drift kontrolü.
-- Seed: geliştirme için 2 tenant (KTD 24.05 ve KTD 25.11'e bağlı), örnek admin, örnek duyurular.
+- Seed: geliştirme için 2 tenant (farklı sürümlerde iki KTD Koha'sına bağlı), örnek admin, örnek duyurular.
