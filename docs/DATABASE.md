@@ -1,6 +1,6 @@
 # DATABASE — Veri Modeli
 
-> Durum: **Taslak v0.1.** PostgreSQL 16+. Tüm zaman alanları `timestamptz` (UTC); gösterimde tenant
+> Durum: **Taslak v0.2.** PostgreSQL 16+, ORM: **Prisma** (D3). Tüm zaman alanları `timestamptz` (UTC); gösterimde tenant
 > saat dilimi kullanılır. Birincil anahtarlar **UUID v7** (sıralanabilir).
 
 ## 1. İlkeler
@@ -60,6 +60,9 @@ erDiagram
     char currency "TRY"
     text default_locale "tr"
     text marc_flavour "MARC21 | UNIMARC"
+    text deployment_mode "CENTRAL | ON_PREMISE"
+    text api_base_url "mobilin kullanacağı Gateway adresi"
+    jsonb notification_settings "provider: expo|fcm_apns|relay, pushTitleMode, saatler"
     boolean active
     text min_app_version
     jsonb contact "e-posta, web"
@@ -186,8 +189,10 @@ erDiagram
     uuid user_id FK
     text installation_id "uygulama kurulum UUID"
     text platform "ios | android"
-    text push_provider "expo | fcm | apns"
-    text push_token
+    text expo_push_token
+    text native_push_token "FCM (android) / APNs (ios)"
+    text native_token_type "fcm | apns"
+    text permission "granted | denied | provisional"
     text app_version
     text os_version
     text locale
@@ -216,8 +221,9 @@ erDiagram
     uuid user_id FK
     text type "DUE_SOON | DUE_TODAY | OVERDUE | HOLD_READY | ..."
     text dedupe_key UK "tenant+user kapsamında benzersiz"
-    text title
-    text body
+    text title "uygulama içi ayrıntılı metin"
+    text body "uygulama içi ayrıntılı metin"
+    text push_template "push için genel şablon anahtarı"
     jsonb data "deep link, checkoutId vb."
     timestamptz scheduled_for
     timestamptz read_at
@@ -229,8 +235,9 @@ erDiagram
     uuid tenant_id FK
     uuid notification_id FK
     uuid device_id FK
-    text status "QUEUED | SENT | DELIVERED | FAILED | INVALID_TOKEN"
-    text provider_message_id "Expo ticket id"
+    text provider "expo | fcm | apns | relay"
+    text status "QUEUED | SENT | DELIVERED | FAILED | INVALID_TOKEN | SKIPPED_NO_TOKEN"
+    text provider_message_id "ör. Expo ticket id"
     text error_code
     int attempts
     timestamptz sent_at
@@ -338,7 +345,7 @@ erDiagram
 | `user_identities` | `UNIQUE (provider_id, external_subject)` | SSO eşleme |
 | `refresh_tokens` | `UNIQUE (token_hash)`; `INDEX (session_id)` | Refresh doğrulama, aile iptali |
 | `devices` | `UNIQUE (installation_id)`; `INDEX (tenant_id, user_id) WHERE invalidated_at IS NULL` | Aynı kurulumda kullanıcı/kurum değişince kayıt güncellenir |
-| `devices` | `UNIQUE (push_token) WHERE invalidated_at IS NULL` | Token tek aktif kullanıcıya bağlı (kurum değişiminde başka kişiye bildirim gitmez) |
+| `devices` | `UNIQUE (expo_push_token) WHERE invalidated_at IS NULL`, `UNIQUE (native_push_token) WHERE invalidated_at IS NULL` | Token tek aktif kullanıcıya bağlı (kurum değişiminde başka kişiye bildirim gitmez) |
 | `notifications` | `UNIQUE (tenant_id, user_id, dedupe_key)` | **Bildirim tekrarını engelleyen ana kısıt** |
 | `notifications` | `INDEX (tenant_id, user_id, created_at DESC)`; partial `WHERE read_at IS NULL` | Liste ve okunmamış sayısı |
 | `notification_deliveries` | `UNIQUE (notification_id, device_id)` | Aynı cihaza tekrar gönderim yok |
@@ -376,7 +383,7 @@ CREATE POLICY tenant_isolation ON notifications
 **Envelope encryption:**
 
 ```
-KMS/Vault master key (KEK, sistem dışı)
+KeyProvider: KEK — MVP: Docker secret dosyası · prod: OpenBao/Vault Transit (bulut KMS'e bağımlılık yok)
    └─► tenant başına DEK (data encryption key), KEK ile şifreli olarak tenant_keys tablosunda
           └─► AES-256-GCM ile secret alanları: client_secret_enc, secrets_enc, totp_secret_enc
               format: version(1B) | key_version | iv(12B) | ciphertext | authTag(16B)
@@ -424,7 +431,15 @@ Yazma işlemi (yenileme, rezervasyon, iptal) sonrası ilgili kullanıcı cache'l
 | Pasif (90 gün giriş yapmamış) cihaz | push token invalidate |
 | Kullanıcı (kurum tarafından silinen / 2 yıl inaktif) | anonimleştirme |
 
-## 8. Migration ve Ortamlar
+## 8. Dağıtım Modeline Göre Veri
+
+- `CENTRAL`: tüm tenant'ların verisi Türkiye'deki merkezi PostgreSQL'de, RLS ile ayrılmış.
+- `ON_PREMISE` (sonraki faz): kurumun Gateway'i **aynı şemayı** kendi PostgreSQL'inde tek tenant ile
+  kullanır. Merkezi DB'de bu tenant için yalnızca dizin kaydı (`tenants`: ad, logo, `api_base_url`,
+  `deployment_mode`) bulunur; kullanıcı, cihaz, bildirim ve audit verisi merkezde tutulmaz.
+- Ayrıntı: [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+## 9. Migration ve Ortamlar
 
 - Prisma migrate; RLS policy'leri ve partition'lar SQL migration olarak (`prisma/migrations/*/migration.sql`).
 - CI'da `prisma migrate diff` ile drift kontrolü.

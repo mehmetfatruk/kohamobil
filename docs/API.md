@@ -1,6 +1,6 @@
 # API — Gateway API Tasarımı
 
-> Durum: **Taslak v0.1.** Mobil uygulama yalnızca `/mobile/v1`, yönetim paneli yalnızca `/admin/v1`
+> Durum: **Taslak v0.2.** Mobil uygulama yalnızca `/mobile/v1`, yönetim paneli yalnızca `/admin/v1`
 > uçlarını kullanır. Hiçbir uç Koha'ya özgü yapı (MARC alanı, borrowernumber, Koha hata kodu) döndürmez.
 > Kesin şema OpenAPI 3.1 olarak `packages/types` zod şemalarından üretilecek.
 
@@ -8,7 +8,7 @@
 
 | Konu | Kural |
 |---|---|
-| Taban URL | `https://api.mirakil-kutuphane.com` (örnek) — **yalnızca HTTPS** |
+| Taban URL | Tenant'ın `apiBaseUrl` değeri (Tenant Directory'den gelir; CENTRAL'de ör. `https://api.mirakil-kutuphane.com`) — **yalnızca HTTPS**. Mobil uygulamada sabit kodlanan tek adres Tenant Directory'dir ([DEPLOYMENT.md §4](./DEPLOYMENT.md#4-tenant-dizini-tenant-directory)) |
 | Versiyonlama | URL'de major (`/mobile/v1`). Geriye dönük uyumsuz değişiklik = `v2` |
 | Format | JSON, `camelCase`, tarih `ISO 8601` (UTC, `Z`), sadece-tarih alanları `YYYY-MM-DD` (tenant saat dilimine göre) |
 | Para | `{ "amount": "12.50", "currency": "TRY" }` — string decimal (float hatası olmasın) |
@@ -64,7 +64,7 @@ Böylece:
 
 | Metot | Yol | Açıklama |
 |---|---|---|
-| GET | `/tenants?search=&city=&limit=&cursor=` | Aktif kurumlar (ad, kod, şehir, logo) |
+| GET | `/tenants?search=&city=&limit=&cursor=` | Aktif kurumlar (ad, kod, şehir, logo, `deploymentMode`, `apiBaseUrl`) — Tenant Directory, yanıt imzalı |
 | GET | `/tenants/{tenantCode}/config` | Kurum public config: tema, feature flags, auth providers |
 
 `GET /tenants/{tenantCode}/config` yanıtı:
@@ -82,6 +82,8 @@ Böylece:
       "primaryColor": "#8B0000",
       "secondaryColor": "#F2B705"
     },
+    "deploymentMode": "CENTRAL",
+    "apiBaseUrl": "https://api.mirakil-kutuphane.com",
     "locale": "tr",
     "timezone": "Europe/Istanbul",
     "currency": "TRY",
@@ -386,7 +388,8 @@ Harita bağlantısı mobilde üretilir (`maps:` / `geo:` URL şeması, Apple/Goo
 | POST | `/notifications/read-all` | Tümünü okundu |
 | GET | `/notification-preferences` | Tercihler |
 | PUT | `/notification-preferences` | Tercihleri güncelle |
-| PUT | `/devices/current` | Push token kaydet/güncelle (upsert, `installationId` ile) |
+| PUT | `/devices/current` | Push token'larını kaydet/güncelle (upsert, `installationId` ile): `expoPushToken` + `nativePushToken` + `nativeTokenType` ([NOTIFICATIONS.md §6](./NOTIFICATIONS.md#6-mobil-taraf--sağlayıcıdan-bağımsız-kayıt)) |
+| GET | `/notifications/{id}` | Tek bildirim (push'tan açılınca ayrıntı ve hedef ekran buradan gelir) |
 | DELETE | `/devices/current` | Bu cihazın push kaydını sil |
 
 `PUT /notification-preferences`:
@@ -427,7 +430,8 @@ yalnızca atandığı tenant'larda ve sınırlı uçlarda yetkilidir.
 | GET/PUT | `/tenants/{id}/auth-providers` | P | Kimlik doğrulama sağlayıcıları |
 | GET/PUT | `/tenants/{id}/library-hours` | P, T | Çalışma saatleri |
 | GET | `/tenants/{id}/stats` | P, T | Aktif kullanıcı (7/30 gün), cihaz, push başarı oranı |
-| GET | `/tenants/{id}/push-status` | P | Son gönderimler, hata oranı, geçersiz token sayısı |
+| GET | `/tenants/{id}/push-status` | P | Aktif sağlayıcı, son gönderimler, hata oranı, geçersiz token sayısı, native token'lı cihaz oranı |
+| PUT | `/tenants/{id}/notification-settings` | P | Bildirim sağlayıcısı (`expo` / `fcm_apns` / `relay`), push başlık modu, hatırlatma saatleri |
 | GET | `/tenants/{id}/koha-errors?cursor=` | P | Son Koha API hataları (maskelenmiş) |
 | GET/POST/PATCH/DELETE | `/announcements` | P (global), T (kendi tenant'ı) | Duyurular |
 | GET | `/audit-logs?tenantId=&action=&cursor=` | P | Audit log |

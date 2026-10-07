@@ -1,6 +1,6 @@
 # AUTHENTICATION — Kimlik Doğrulama Mimarisi
 
-> Durum: **Taslak v0.1.** MVP: KOHA (kullanıcı adı / kart numarası + şifre). Mimari LDAP, SAML ve
+> Durum: **Taslak v0.2.** MVP: KOHA (kullanıcı adı / kart numarası + şifre). Mimari LDAP, SAML ve
 > OIDC'nin sonradan eklenmesine hazırdır.
 
 ## 1. İlkeler
@@ -104,10 +104,10 @@ listesi ile belirli kategoriler (ör. personel dışı kurumsal hesaplar) engell
 
 | Özellik | Değer |
 |---|---|
-| Algoritma | `EdDSA` (Ed25519) veya `ES256`; anahtar KMS'te, `kid` ile rotasyon; JWKS yalnızca iç kullanım |
+| Algoritma | `EdDSA` (Ed25519) veya `ES256`; imza anahtarı `KeyProvider` ile korunur (dosya / OpenBao), `kid` ile rotasyon; JWKS yalnızca iç kullanım |
 | Ömür | **15 dakika** |
 | Saklama (mobil) | Yalnızca bellek (Zustand, persist edilmez) |
-| Claim'ler | `iss`, `aud: "mobile"`, `sub` (user UUID), `tid` (tenant UUID), `sid` (session UUID), `iat`, `exp`, `jti`, `amr` (`["pwd"]`, `["sso"]`) |
+| Claim'ler | `iss` (kurulum başına farklı — CENTRAL / her ON_PREMISE kurulumu; bir kurulumun token'ı diğerinde geçmez), `aud: "mobile"`, `sub` (user UUID), `tid` (tenant UUID), `sid` (session UUID), `iat`, `exp`, `jti`, `amr` (`["pwd"]`, `["sso"]`) |
 | İçermez | patron_id, kart no, e-posta, ad, yetki listesi |
 
 Doğrulama her istekte: imza, `exp`, `aud`, `iss` + Redis'te `sess:{sid}:revoked` kontrolü (anında iptal)
@@ -192,7 +192,7 @@ sequenceDiagram
   IdP->>GW: callback (OIDC code / SAML POST assertion)
   GW->>IdP: (OIDC) token exchange + id_token doğrulama / (SAML) imza, audience, zaman doğrulama
   GW->>GW: PatronResolver → Koha patron eşleme
-  GW->>Browser: 302 → mirakil://auth/callback?code=<tek kullanımlık, 60 sn>
+  GW->>Browser: 302 → https://app.mirakil-kutuphane.com/auth/callback?code=<tek kullanımlık, 60 sn> (universal/app link)
   Browser->>App: deep link
   App->>GW: POST /auth/sso/exchange {code, code_verifier}
   GW-->>App: {accessToken, refreshToken}

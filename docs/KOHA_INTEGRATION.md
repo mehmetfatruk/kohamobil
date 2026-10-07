@@ -1,12 +1,14 @@
 # KOHA_INTEGRATION — Koha Entegrasyon Katmanı
 
-> Durum: **Taslak v0.1.** Bu doküman Gateway'in Koha sunucularıyla nasıl konuştuğunu, hangi
+> Durum: **Taslak v0.2.** Kararlar: **MirAkıl Koha eklentisi geliştirilecek (D1)** ·
+> **desteklenen en düşük Koha sürümü 24.05 (D2)**. Bu doküman Gateway'in Koha sunucularıyla nasıl konuştuğunu, hangi
 > işlemlerin Koha core REST API ile doğrudan yapılabildiğini ve hangileri için MirAkıl Koha
 > Plugin'i gerektiğini tanımlar.
 >
 > ⚠️ **Doğrulama notu:** Endpoint'lerin hangi Koha sürümünde eklendiği bilgisi bilinen Koha geliştirme
-> geçmişine dayanır ve "≈" ile işaretlenmiştir. Faz 1'de **koha-testing-docker (KTD)** ile 24.05,
-> 25.05 ve 25.11 üzerinde tek tek doğrulanacak ve bu doküman güncellenecektir. Mimari bu belirsizliği
+> geçmişine dayanır ve "≈" ile işaretlenmiştir. En düşük sürüm 24.05 olduğundan §3'teki core uçların
+> büyük çoğunluğunun desteklenen tüm sürümlerde bulunması beklenir. Faz 0'da **koha-testing-docker (KTD)**
+> ile 24.05, 24.11, 25.05 ve 25.11 üzerinde tek tek doğrulanacak ve bu doküman güncellenecektir. Mimari bu belirsizliği
 > **capability tespiti** ile tolere edecek şekilde tasarlanmıştır.
 
 ## 1. Bağlantı Modeli
@@ -80,9 +82,6 @@ classDiagram
   }
   class Koha2511Adapter
   class Koha2405Adapter
-  class LegacyKohaAdapter {
-    ILS-DI fallback
-  }
   class PluginAugmentation {
     <<decorator>>
     search, holdHistory, bulkRenewability, libraryHours, sysprefs
@@ -90,7 +89,6 @@ classDiagram
   KohaAdapter <|.. BaseRestAdapter
   BaseRestAdapter <|-- Koha2511Adapter
   BaseRestAdapter <|-- Koha2405Adapter
-  BaseRestAdapter <|-- LegacyKohaAdapter
   KohaAdapter <|.. PluginAugmentation
   PluginAugmentation o-- KohaAdapter : wraps
 ```
@@ -100,7 +98,10 @@ classDiagram
 - **Adapter seçimi:** `tenant_koha_connections.adapter_key = auto` ise tespit edilen sürüme göre:
   - `≥ 25.05` → `Koha2511Adapter` (en güncel davranış seti)
   - `24.05 – 24.11` → `Koha2405Adapter`
-  - `< 24.05` → `LegacyKohaAdapter` (REST + ILS-DI fallback; ≈22.11 altı resmi olarak desteklenmez)
+  - `< 24.05` → **desteklenmez**: bağlantı testi `KOHA_VERSION_UNSUPPORTED` döndürür ve tenant aktifleştirilemez.
+    `LegacyKohaAdapter` / ILS-DI geliştirilmeyecektir (D2).
+  - Yeni bir Koha sürümü çıktığında önce contract testleri çalıştırılır; davranış farkı yoksa mevcut
+    adapter'a eşlenir, fark varsa yeni adapter alt sınıfı eklenir.
 - **Davranış seçimi capability'lere göredir.** Örn. `Koha2405Adapter.listHolds('past')` önce
   `capabilities.holds.history`'e bakar; plugin varsa plugin'i, yoksa `FEATURE_UNSUPPORTED` döndürür.
 - **`PluginAugmentation` decorator'ı:** Plugin kurulu tenant'larda belirli metotları plugin
@@ -182,7 +183,10 @@ Yollar `https://KOHA-SERVER/api/v1` altındadır.
 | Toplu "hazır rezervasyon" (worker) | `GET /holds?q={"status":"W","waiting_date":{">=":since}}` | ≈ 20.05+ | ✅ Doğrudan |
 | Üyelik bitişi yaklaşanlar | `GET /patrons?q={"expiry_date":{"-between":[...]}}` | 20.05+ | ✅ (yalnızca mobil kullanıcılarla kesişim alınır) |
 
-## 4. Plugin veya Özel Endpoint Gerektirenler
+## 4. Eklenti veya Özel Endpoint Gerektirenler
+
+> Eklenti **önerilen** kurulumdur ancak zorunlu değildir: eklentisi olmayan kurum "sınırlı mod"da çalışır
+> (aşağıdaki fallback sütunu). Pilot kurumlarda eklenti kurulu olacaktır.
 
 | İhtiyaç | Neden core REST yetmiyor | Plugin endpoint (öneri) | Plugin yoksa fallback |
 |---|---|---|---|
@@ -208,6 +212,9 @@ Yollar `https://KOHA-SERVER/api/v1` altındadır.
 - **Yalnızca okuma ve sınırlı, beyaz listeli** işlevler sunar; Koha DB'sine dışarıdan bağlantı açılmaz
   (plugin Koha process'i içinde çalışır).
 - Sürümleme: semver; Gateway plugin sürümünü `info`'dan okur ve uyumluluk matrisi tutar.
+- Desteklenen Koha sürümleri: **24.05 ve üzeri** (eklentinin `minimum_version` meta verisi `24.05`).
+- Eklenti yalnızca Koha'nın kendi Perl API'lerini (`Koha::Patrons`, `Koha::Checkouts`, `Koha::Holds`,
+  `Koha::SearchEngine`, `C4::Context->preference`) kullanır; doğrudan SQL yazmaz (sürüm uyumu için).
 - Kurumlar için kurulum rehberi `docs/koha-plugin-install.md` (Faz 2).
 
 ## 5. Katalog Araması
@@ -322,7 +329,8 @@ yalnızca Gateway `ErrorCode` + yerelleştirilmiş mesaj gider.
 ## 9. Test Stratejisi
 
 - **Unit:** mapper, normalizer, error mapper (fixture tabanlı).
-- **Contract:** Her adapter, KTD'de ayağa kaldırılan Koha sürümlerine karşı (`24.05`, `25.05`, `25.11`;
-  legacy için `23.11`). CI'da nightly.
+- **Contract:** Her adapter, KTD'de ayağa kaldırılan Koha sürümlerine karşı (`24.05`, `24.11`, `25.05`,
+  `25.11`), eklentili ve eklentisiz. CI'da nightly.
+- **Sürüm reddi:** 23.11 KTD'ye karşı bağlantı testinin `KOHA_VERSION_UNSUPPORTED` döndürdüğü doğrulanır.
 - **Kayıt/yeniden oynatma:** Gerçek kurum Koha'larından (izinle, anonimleştirilmiş) alınan yanıt örnekleri.
 - **Kaos:** Koha yavaş/çöken senaryolarda circuit breaker ve diğer tenant'ların etkilenmediği doğrulanır.

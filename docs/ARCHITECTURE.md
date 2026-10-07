@@ -1,10 +1,13 @@
-# ARCHITECTURE — Koha Mobile (çalışma adı: MirAkıl Kütüphane)
+# ARCHITECTURE — MirAkıl Kütüphane
 
-> Durum: **Taslak v0.1 — mimari doğrulama aşaması.** Bu doküman kod yazılmadan önce
+> Durum: **Taslak v0.2 — mimari doğrulama aşaması.** Onaylanan kararlar: [DECISIONS.md](./DECISIONS.md). Bu doküman kod yazılmadan önce
 > gereksinim analizini, tespit edilen eksikleri ve önerilen sistem mimarisini içerir.
 > İlgili dokümanlar: [DATABASE.md](./DATABASE.md) · [API.md](./API.md) ·
 > [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md) · [AUTHENTICATION.md](./AUTHENTICATION.md) ·
-> [NOTIFICATIONS.md](./NOTIFICATIONS.md) · [MVP_PLAN.md](./MVP_PLAN.md)
+> [NOTIFICATIONS.md](./NOTIFICATIONS.md) · [DEPLOYMENT.md](./DEPLOYMENT.md) · [MVP_PLAN.md](./MVP_PLAN.md)
+>
+> Uygulamanın adı ve markası **MirAkıl Kütüphane**'dir. "Koha" ana marka olarak kullanılmaz; açıklamalarda
+> yalnızca "Koha kütüphane yönetim sistemleri ile entegre çalışır" ifadesiyle geçer.
 
 ---
 
@@ -17,9 +20,10 @@
 | Kurum seçimi | İlk açılışta seçim, cihazda saklama, "Kurum Değiştir" | `GET /mobile/v1/tenants` + `expo-secure-store` |
 | White-label | Logo, renkler, kurum adı; MirAkıl markası korunur | Runtime theming (tenant config), statik uygulama kabuğu |
 | Kimlik doğrulama | KOHA (MVP), LDAP/SAML/OIDC (gelecek) | `AuthProvider` strateji arayüzü, kendi JWT + refresh token rotasyonu |
-| Koha sürüm farkları | 24.05 / 25.11 / legacy | `KohaAdapter` arayüzü + **yetenek (capability) tespiti** |
+| Koha sürüm farkları | En düşük **24.05**; 24.11, 25.05, 25.11… | `KohaAdapter` arayüzü + **yetenek (capability) tespiti** + MirAkıl Koha eklentisi |
 | Güvenlik | Tenant izolasyonu, rate limit, şifreli secret, audit, correlation ID | NestJS guard'ları, PostgreSQL RLS, envelope encryption, OpenTelemetry |
-| Bildirim | Push (FCM/APNs), tercihler, tekrarsız bildirim | BullMQ worker'lar, dedupe anahtarı (unique index), PushProvider |
+| Bildirim | Push (MVP: Expo; ileride FCM/APNs), tercihler, tekrarsız bildirim, kişisel veri içermeyen push | BullMQ worker'lar, dedupe anahtarı (unique index), `NotificationProvider` soyut katmanı |
+| Barındırma | Türkiye tercihli, Docker tabanlı, sağlayıcıdan bağımsız; `CENTRAL` / `ON_PREMISE` | Docker Compose, açık kaynak bileşenler, Tenant Directory ([DEPLOYMENT.md](./DEPLOYMENT.md)) |
 | Offline | Son görüntülenen veriler cache'ten; yazma işlemleri yalnızca online | TanStack Query persist (MMKV) + NetInfo tabanlı mutasyon kilidi |
 | Yönetim | MirAkıl yönetici paneli | Ayrı web uygulaması (`apps/admin`), `/admin/v1` API |
 | Dil | Türkçe ana dil, İngilizce i18n | i18next + `packages/i18n`, backend hata kodları dil-bağımsız |
@@ -35,16 +39,17 @@ Aşağıdaki maddeler gereksinimlerde yer almıyor veya netleştirilmesi gerekiy
 
 1. **Katalog araması Koha REST API'de yok.** Koha core REST API (`/api/v1`) Zebra/Elasticsearch
    tam metin aramasını sunmaz; `GET /biblios` yalnızca tablo kolonlarında filtreleme yapar.
-   → **Öneri:** MirAkıl tarafından geliştirilecek bir **Koha Plugin** (`/api/v1/contrib/mirakil/...`)
-   ile `Koha::SearchEngine` üzerinden arama. Plugin kurulamayan kurumlar için SRU (Zebra) veya
+   → **Karar (D1):** MirAkıl **Koha eklentisi** (`/api/v1/contrib/mirakil/...`) geliştirilecek ve
+   arama `Koha::SearchEngine` üzerinden yapılacak. Plugin kurulamayan kurumlar için SRU (Zebra) veya
    OPAC OpenSearch/RSS fallback. Ayrıntı: [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md#5-katalog-araması).
 2. **Kütüphane çalışma saatleri, duyurular, geçmiş rezervasyonlar** core REST API'de ya yok ya da
    sürüme göre değişiyor. → **Öneri:** Çalışma saatleri ve duyurular **Gateway'in kendi
    veritabanında** yönetilsin (yönetim paneli), Koha'dan yalnızca şube adres/iletişim bilgisi gelsin.
 3. **Kurum Koha sunucularının erişilebilirliği.** Birçok üniversitede Koha kampüs ağı içindedir.
    → **Öneri:** Gateway'in sabit çıkış IP'leri olsun; kurumlar bu IP'leri allowlist'e eklesin.
-   Erişim mümkün değilse ileride kurum içine kurulan hafif bir **"MirAkıl Connector"** (outbound
-   tünel) seçeneği. MVP'de yalnızca IP allowlist.
+   Erişim mümkün değilse ileride kurum için **`ON_PREMISE` kurulum** (Gateway kurumun ağında, Koha'ya
+   iç ağdan erişir) — bkz. [DEPLOYMENT.md §5](./DEPLOYMENT.md#5-on_premise-modeli-sonraki-faz-mimari-hazır).
+   MVP'de yalnızca IP allowlist.
 4. **Koha servis hesabı (API client) yetkileri.** Gateway, her kurum için Koha'da yetkileri
    sınırlandırılmış bir personel hesabına bağlı OAuth2 client kullanacak. Bu hesap teorik olarak
    kurumun tüm üyelerini görebilir; bu nedenle **patron_id hiçbir zaman istemciden alınmaz**
@@ -96,27 +101,27 @@ flowchart LR
     A[Yönetim Paneli<br/>React + Vite]
   end
 
-  subgraph MirAkil["MirAkıl Bulut (HTTPS only)"]
-    LB[Load Balancer / WAF<br/>TLS 1.2+]
+  subgraph MirAkil["MirAkıl merkezi altyapı — CENTRAL (Türkiye'de, Docker, HTTPS only)"]
+    LB[Caddy / reverse proxy<br/>TLS 1.2+]
     GW[Gateway API<br/>NestJS<br/>/mobile/v1 · /admin/v1]
     WK[Worker<br/>NestJS + BullMQ]
     PG[(PostgreSQL<br/>RLS)]
     RD[(Redis<br/>cache · queue · rate limit)]
-    KMS[[KMS / Vault<br/>master key]]
-    OBJ[(Object Storage<br/>logolar, kapak cache)]
-    OBS[Log/Trace/Error<br/>OpenTelemetry · Sentry]
+    KMS[[KeyProvider<br/>KEK dosyası / OpenBao]]
+    OBJ[(StorageProvider<br/>disk / MinIO)]
+    OBS[Log/Trace/Error<br/>OpenTelemetry · Grafana · GlitchTip]
   end
 
-  subgraph Push
-    EXPO[Expo Push Service]
+  subgraph Push["Push (yurt dışı — yalnızca genel metin + opak ID)"]
+    EXPO[Expo Push Service<br/>MVP provider]
     FCM[FCM]
     APNS[APNs]
   end
 
   subgraph Tenants["Kurum Koha Sunucuları"]
     K1[Koha A 25.11<br/>+ MirAkıl Plugin]
-    K2[Koha B 24.05]
-    K3[Koha C 22.11 legacy]
+    K2[Koha B 24.05<br/>+ MirAkıl Plugin]
+    K3[Koha C 24.11<br/>eklentisiz, sınırlı mod]
   end
 
   M -->|JWT| LB
@@ -135,7 +140,8 @@ flowchart LR
   WK -->|KohaAdapter| K1
   WK -->|KohaAdapter| K2
   WK -->|KohaAdapter| K3
-  WK --> EXPO --> FCM & APNS
+  WK -->|NotificationProvider| EXPO --> FCM & APNS
+  WK -.->|ileride doğrudan| FCM & APNS
   GW -.-> OBS
   WK -.-> OBS
 ```
@@ -153,7 +159,13 @@ flowchart LR
 4. **Adapter + capability.** Sürüm numarası yerine "bu Koha hangi işlemleri destekliyor?" sorusu
    esas alınır. Adapter seçimi sürüme, davranış seçimi yeteneklere göre yapılır.
 5. **Fail-safe varsayılanlar.** Bir yetenek tespit edilemiyorsa özellik kapalı kabul edilir.
-6. **Stateless API, yatay ölçek.** Gateway ve Worker ayrı process/pod; ikisi de yatay ölçeklenir.
+6. **Stateless API, yatay ölçek.** Gateway ve Worker ayrı process/container; ikisi de yatay ölçeklenir.
+7. **Sağlayıcıdan bağımsızlık.** Bulut sağlayıcısına (AWS, Azure, Hetzner…) veya push sağlayıcısına
+   (Expo) özgü kod yalnızca arayüz implementasyonlarında bulunur (`NotificationProvider`,
+   `StorageProvider`, `KeyProvider`, `MailProvider`). Bkz. [DEPLOYMENT.md §1](./DEPLOYMENT.md#1-sağlayıcıdan-bağımsızlık-ilkeleri).
+8. **Gateway adresi sabit kodlanmaz.** Mobil uygulama yalnızca Tenant Directory adresini bilir; her
+   tenant'ın Gateway adresi (`apiBaseUrl`) dizinden gelir. Bu sayede `CENTRAL` ve `ON_PREMISE` tenant'lar
+   aynı uygulamayla çalışır.
 
 ---
 
@@ -171,9 +183,9 @@ flowchart LR
 | Formlar / doğrulama | react-hook-form + zod (şemalar `packages/types`'tan) |
 | i18n | i18next + react-i18next + `expo-localization`; `tr` varsayılan, `en` |
 | Tema | Tenant renklerinden üretilen token seti (light/dark), MirAkıl temel tasarım sistemi |
-| Push | `expo-notifications` (token: Expo push token; ileride native FCM/APNs token) |
+| Push | `expo-notifications`, tek `PushRegistration` modülü arkasında; **Expo token + native FCM/APNs token birlikte kaydedilir** |
 | Ağ durumu | `@react-native-community/netinfo` → offline banner + mutasyon kilidi |
-| Hata/izleme | Sentry (React Native) — PII scrub |
+| Hata/izleme | Sentry React Native SDK → **self-hosted GlitchTip/Sentry (TR)** — PII scrub |
 | Build / dağıtım | EAS Build + EAS Update (OTA, yalnızca JS düzeltmeleri) |
 
 **Ekran haritası (MVP + sonrası):**
@@ -220,7 +232,8 @@ apps/api/src/
     filters/            ProblemDetailsExceptionFilter (RFC 9457)
     errors/             DomainError, ErrorCode enum, KohaErrorMapper
     rate-limit/         Redis tabanlı throttler (IP + tenant + user + route)
-    crypto/             EnvelopeEncryptionService (KMS/Vault)
+    crypto/             EnvelopeEncryptionService + KeyProvider (file | openbao)
+    storage/            StorageProvider (local | s3-compatible)
   modules/
     tenants/            Tenant registry, public config, feature flags
     auth/               Login, refresh, logout, AuthProvider registry (koha, ldap, saml, oidc)
@@ -238,7 +251,7 @@ apps/api/src/
     health/             /health/live, /health/ready
   integrations/
     koha/               (packages/koha-client'ı Nest provider olarak sarar, connection pool, circuit breaker)
-    push/               PushProvider (Expo, FCM/APNs)
+  (bildirim sağlayıcıları: modules/notifications/providers — NotificationProvider: expo | fcm | apns | relay)
 ```
 
 **İstek yaşam döngüsü:**
@@ -274,8 +287,8 @@ Aynı kod tabanı, farklı process. BullMQ kuyrukları:
 |---|---|
 | `tenant-scan` | Her tenant için periyodik tarama (iade yaklaşan, geciken, hazır rezervasyon, üyelik bitişi) |
 | `notification-fanout` | Taranan olaylardan `notifications` kaydı üretme (dedupe) |
-| `push-send` | Push gönderimi (batch, retry, backoff) |
-| `push-receipts` | Expo receipt kontrolü, geçersiz token temizliği |
+| `push-send` | `NotificationProvider` üzerinden push gönderimi (batch, retry, backoff) |
+| `push-receipts` | Teslim durumu kontrolü (Expo receipts), geçersiz token temizliği |
 | `tenant-health` | Koha bağlantı sağlık testi, sürüm/capability yenileme |
 | `maintenance` | Süresi dolmuş refresh token, eski bildirim, log temizliği |
 
@@ -310,17 +323,18 @@ Ayrıntı: [NOTIFICATIONS.md](./NOTIFICATIONS.md).
 |---|---|---|
 | Monorepo | **pnpm workspaces + Turborepo** | Hızlı, Expo ile uyumlu, cache'li build |
 | Backend | NestJS 11, Node.js 22 LTS, TypeScript strict | Modülerlik, DI, guard/interceptor modeli |
-| ORM | **Prisma** (+ RLS için transaction-scoped `set_config`) | Migration, tip güvenliği. Alternatif: Drizzle (RLS ile daha doğal) — karar onayınıza |
+| ORM | **Prisma** (+ RLS için transaction-scoped `set_config`) — **onaylandı (D3)** | Migration, tip güvenliği |
 | Doğrulama | zod (`nestjs-zod`) | Mobil ile aynı şemalar |
 | API dokümanı | OpenAPI 3.1 (zod'dan üretim) | `packages/api-client` üretimi |
 | Kuyruk | BullMQ (Redis 7) | Repeatable/scheduled job, retry, rate limiter |
 | HTTP istemci | `undici` (keep-alive pool) | Tenant başına bağlantı havuzu, timeout |
 | Dayanıklılık | `cockatiel` (retry, circuit breaker, timeout, bulkhead) | Bir kurumun Koha'sı çöktüğünde diğerleri etkilenmesin |
-| Log | pino (JSON) → merkezi log (Loki/ELK) | correlationId, tenantId alanları |
-| Trace/Metric | OpenTelemetry → Grafana Tempo/Prometheus | Koha çağrı gecikmeleri tenant bazlı |
-| Hata takibi | Sentry (api, worker, mobile, admin) | Merkezi hata loglama |
-| Secret | Envelope encryption: KMS/Vault master key + AES-256-GCM | [DATABASE.md](./DATABASE.md#5-şifreleme) |
-| Container | Docker, docker-compose (dev), Kubernetes veya Docker Swarm (prod) | `infra/` |
+| Log | pino (JSON) → Loki (self-hosted) | correlationId, tenantId alanları |
+| Trace/Metric | OpenTelemetry → Prometheus + Tempo + Grafana (self-hosted) | Koha çağrı gecikmeleri tenant bazlı |
+| Hata takibi | Sentry SDK → **self-hosted GlitchTip/Sentry** (api, worker, mobile, admin) | Merkezi hata loglama, veriler TR'de |
+| Secret | Envelope encryption: `KeyProvider` (KEK dosyası → OpenBao/Vault Transit) + AES-256-GCM | [DATABASE.md](./DATABASE.md#5-şifreleme) |
+| Bildirim | `NotificationProvider` — MVP: Expo; ileride FCM/APNs, Push Relay | [NOTIFICATIONS.md](./NOTIFICATIONS.md) |
+| Container | Docker + Docker Compose (dev ve prod); isteğe bağlı Swarm/Kubernetes | [DEPLOYMENT.md](./DEPLOYMENT.md) |
 | CI/CD | GitHub Actions + EAS | lint, typecheck, test, build, migration check |
 
 ---
@@ -370,7 +384,7 @@ Ayrıntı: [NOTIFICATIONS.md](./NOTIFICATIONS.md).
   loglanmaz).
 - **Correlation ID:** Mobil her isteğe `X-Correlation-Id` (UUID v7) ekler; yoksa Gateway üretir.
   Koha'ya giden isteklere de aynı ID header olarak eklenir; tüm loglarda, hata yanıtlarında bulunur.
-- **Merkezi hata loglama:** Sentry + yapısal log. Koha ham yanıtı **yalnızca backend logunda**
+- **Merkezi hata loglama:** self-hosted GlitchTip/Sentry + yapısal log. Koha ham yanıtı **yalnızca backend logunda**
   (`koha_api_errors` tablosu + log), kullanıcıya `ErrorCode` + yerelleştirilmiş mesaj.
 - **Güvenli mobil saklama:** `expo-secure-store` (iOS Keychain `WHEN_UNLOCKED_THIS_DEVICE_ONLY`,
   Android Keystore). Offline cache (MMKV) şifreli instance; çıkışta silinir.
@@ -411,7 +425,14 @@ Gecikme hesapları (kalan gün, renk) cache'ten gösterilirken cihaz saatine gö
 
 ---
 
-## 9. White-Label / Tema
+## 9. Marka ve White-Label
+
+- Uygulamanın tek markası **MirAkıl Kütüphane**'dir (mağaza adı, uygulama ikonu, açılış ekranı).
+- "Koha" ürün adı ana marka olarak kullanılmaz; mağaza açıklamalarında ve "Hakkında" ekranında yalnızca
+  "Koha entegre kütüphane mobil uygulaması" / "Koha kütüphane yönetim sistemleri ile entegre çalışır"
+  ifadeleriyle geçer.
+- Önerilen tanımlayıcılar: iOS bundle id / Android package `tr.com.mirakil.kutuphane`, deep link şeması
+  `mirakil://`, universal/app links alan adı `app.mirakil-kutuphane.com` (alan adları kesinleşecek).
 
 - Tenant config: `branding.logoUrl`, `branding.logoDarkUrl`, `primaryColor`, `secondaryColor`,
   `displayName`, `shortName`.
@@ -425,16 +446,20 @@ Gecikme hesapları (kalan gün, renk) cache'ten gösterilirken cihaz saatine gö
 
 ## 10. Dağıtım Topolojisi
 
+Ayrıntı: [DEPLOYMENT.md](./DEPLOYMENT.md). Özet:
+
 ```
-Prod (öneri)
-  ├─ api        ×N (HPA, stateless)
-  ├─ worker     ×M (kuyruk derinliğine göre ölçek)
-  ├─ admin      statik (CDN)
-  ├─ PostgreSQL yönetilen servis (PITR yedek, şifreli disk)
-  ├─ Redis      yönetilen / Sentinel (AOF açık — BullMQ için)
-  ├─ Object storage (logolar, kapak cache)
-  └─ Sabit egress IP(ler)  ← kurum Koha firewall allowlist'i için
-Ortamlar: local (docker-compose) · staging (test Koha'ları: 24.05, 25.05, 25.11 KTD) · prod
+CENTRAL (MVP) — Türkiye'deki VPS / özel sunucu / MirAkıl sunucusu, Docker Compose
+  ├─ caddy      TLS, reverse proxy
+  ├─ api        ×N (stateless)
+  ├─ worker     ×M (kuyruk derinliğine göre)
+  ├─ admin      statik (Nginx)
+  ├─ postgres   (pgBackRest/wal-g ile PITR yedek, Türkiye'de ikinci lokasyona kopya)
+  ├─ redis      (AOF açık — BullMQ için)
+  ├─ minio / disk, openbao, gözlemlenebilirlik (opsiyonel compose dosyaları)
+  └─ sabit çıkış IP'si  ← kurum Koha firewall allowlist'i için
+ON_PREMISE (sonraki faz) — aynı image'lar kurumun veri merkezinde, tek tenant'lı
+Ortamlar: local (compose.dev) · staging (KTD: 24.05, 24.11, 25.05, 25.11) · production
 ```
 
 Geliştirme ve entegrasyon testleri için **KTD (koha-testing-docker)** ile farklı Koha sürümleri
@@ -465,19 +490,20 @@ kohamobil/
 │  ├─ types/                  zod şemaları, DTO, ErrorCode, FeatureFlags
 │  ├─ api-client/             OpenAPI tabanlı tipli istemci
 │  ├─ koha-client/            KohaAdapter, sürüm adapter'ları, MARC normalizer, error mapper
-│  │  ├─ src/adapters/        base, koha-2511, koha-2405, legacy
+│  │  ├─ src/adapters/        base, koha-2405, koha-2511
 │  │  ├─ src/capabilities/    capability probe
 │  │  ├─ src/marc/            marc21, unimarc
 │  │  └─ test/fixtures/       sürüm bazlı gerçek yanıt örnekleri
 │  ├─ i18n/
 │  ├─ ui/
 │  └─ config/                 eslint, tsconfig, prettier
-├─ koha-plugin/               MirAkıl Koha Plugin (Perl, Koha::Plugin::Com::MirAkil::Mobile)
+├─ koha-plugin/               MirAkıl Koha eklentisi (Perl, Koha::Plugin::Com::MirAkil::Mobile)
 ├─ infra/
-│  ├─ docker/                 Dockerfile'lar, docker-compose.yml (pg, redis, api, worker)
-│  ├─ k8s/                    (ileride) manifest / helm
+│  ├─ docker/                 Dockerfile'lar, compose.*.yml (base, storage, secrets, observability, dev), env örnekleri, Caddyfile
+│  ├─ backup/                 pgBackRest/wal-g yapılandırması, geri yükleme betikleri
+│  ├─ k8s/                    (isteğe bağlı, ileride) Helm chart
 │  └─ ktd/                    koha-testing-docker yapılandırmaları
-├─ docs/                      bu dokümanlar + ADR'ler (docs/adr/0001-...)
+├─ docs/                      bu dokümanlar + DECISIONS.md (karar kaydı)
 ├─ .github/workflows/
 ├─ turbo.json
 ├─ pnpm-workspace.yaml
@@ -489,15 +515,18 @@ kohamobil/
 
 ---
 
-## 12. Onay Bekleyen Mimari Kararlar
+## 12. Mimari Kararlar
 
-| # | Karar | Önerim |
+Tüm kararlar ve durumları [DECISIONS.md](./DECISIONS.md) dosyasında tutulur. Özet:
+
+| # | Karar | Durum |
 |---|---|---|
-| D1 | MirAkıl Koha Plugin geliştirilsin mi? | **Evet** — arama, syspref okuma, çalışma saatleri, geçmiş rezervasyonlar için |
-| D2 | ORM | Prisma (alternatif Drizzle) |
-| D3 | Push altyapısı | MVP'de Expo Push Service; `PushProvider` ile doğrudan FCM/APNs'e geçiş hazır |
-| D4 | Admin panel framework | React + Vite (SSR yok) |
-| D5 | Koha erişimi | Sabit egress IP + kurum allowlist; connector ajanı sonraki faz |
-| D6 | Dijital kütüphane kartı MVP'de | Evet |
-| D7 | Plugin monorepo içinde mi? | Evet (`koha-plugin/`) |
-| D8 | Admin rolleri | `PLATFORM_ADMIN`, `TENANT_ADMIN` |
+| D1 | MirAkıl Koha eklentisi geliştirilecek | ✅ |
+| D2 | En düşük Koha sürümü 24.05 | ✅ |
+| D3 | ORM: Prisma | ✅ |
+| D4 | `NotificationProvider` soyut katmanı, ilk provider Expo | ✅ |
+| D5 | Push içeriğinde kişisel veri yok | ✅ |
+| D6 | Marka: MirAkıl Kütüphane | ✅ |
+| D7 | Docker tabanlı, sağlayıcıdan bağımsız, Türkiye tercihli barındırma | ✅ |
+| D8 | `CENTRAL` / `ON_PREMISE` dağıtım modeli, MVP `CENTRAL` | ✅ |
+| D9–D16 | Admin framework, Koha erişimi, dijital kart, eklenti konumu, roller, Push Relay, anahtar yönetimi, hata takibi | 🟡 Öneri |
