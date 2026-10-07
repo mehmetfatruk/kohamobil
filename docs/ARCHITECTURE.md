@@ -389,6 +389,8 @@ Ayrıntı: [NOTIFICATIONS.md](./NOTIFICATIONS.md).
 - **Güvenli mobil saklama:** `expo-secure-store` (iOS Keychain `WHEN_UNLOCKED_THIS_DEVICE_ONLY`,
   Android Keystore). Offline cache (MMKV) şifreli instance; çıkışta silinir.
 - **Bağımlılık güvenliği:** Renovate, `pnpm audit`, container image taraması.
+- **Secret yönetimi:** Hiçbir secret repoda bulunmaz; Docker secrets / OpenBao / EAS Secrets / CI secrets ve
+  şifreli DB alanları kullanılır, gitleaks CI'da zorunludur ([DEPLOYMENT.md §8](./DEPLOYMENT.md#8-secret-yönetimi)).
 
 ---
 
@@ -432,7 +434,7 @@ Gecikme hesapları (kalan gün, renk) cache'ten gösterilirken cihaz saatine gö
   "Koha entegre kütüphane mobil uygulaması" / "Koha kütüphane yönetim sistemleri ile entegre çalışır"
   ifadeleriyle geçer.
 - Önerilen tanımlayıcılar: iOS bundle id / Android package `tr.com.mirakil.kutuphane`, deep link şeması
-  `mirakil://`, universal/app links alan adı `app.mirakil-kutuphane.com` (alan adları kesinleşecek).
+  `mirakil://`, universal/app links alan adı `app.koha-tr.com`. Alan adları için bkz. [DEPLOYMENT.md §2.1](./DEPLOYMENT.md#21-alan-adları).
 
 - Tenant config: `branding.logoUrl`, `branding.logoDarkUrl`, `primaryColor`, `secondaryColor`,
   `displayName`, `shortName`.
@@ -529,4 +531,8 @@ Tüm kararlar ve durumları [DECISIONS.md](./DECISIONS.md) dosyasında tutulur. 
 | D6 | Marka: MirAkıl Kütüphane | ✅ |
 | D7 | Docker tabanlı, sağlayıcıdan bağımsız, Türkiye tercihli barındırma | ✅ |
 | D8 | `CENTRAL` / `ON_PREMISE` dağıtım modeli, MVP `CENTRAL` | ✅ |
-| D9–D16 | Admin framework, Koha erişimi, dijital kart, eklenti konumu, roller, Push Relay, anahtar yönetimi, hata takibi | 🟡 Öneri |
+| D9–D16 | Admin framework, Koha erişimi, dijital kart, eklenti konumu, roller, Push Relay, anahtar yönetimi, hata takibi | ✅ |
+| D17 | Secret'lar repoda tutulmaz; yalnızca ortam/secret yönetimi | ✅ |
+| D18 | Alan adları: `api` / `directory` / `admin` / `app` (/ `relay`) `.koha-tr.com` | ✅ |
+| D19 | Pilot sunucu: TR, Koha üretiminden bağımsız, 4 vCPU / 8 GB / 80–160 GB NVMe | ✅ |
+| D20–D21 | Koha test ortamı MirAkıl'dan; KVKK hukuki görüşü alınacak | ✅ |

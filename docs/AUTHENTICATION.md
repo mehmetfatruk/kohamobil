@@ -192,7 +192,7 @@ sequenceDiagram
   IdP->>GW: callback (OIDC code / SAML POST assertion)
   GW->>IdP: (OIDC) token exchange + id_token doğrulama / (SAML) imza, audience, zaman doğrulama
   GW->>GW: PatronResolver → Koha patron eşleme
-  GW->>Browser: 302 → https://app.mirakil-kutuphane.com/auth/callback?code=<tek kullanımlık, 60 sn> (universal/app link)
+  GW->>Browser: 302 → https://app.koha-tr.com/auth/callback?code=<tek kullanımlık, 60 sn> (universal/app link)
   Browser->>App: deep link
   App->>GW: POST /auth/sso/exchange {code, code_verifier}
   GW-->>App: {accessToken, refreshToken}

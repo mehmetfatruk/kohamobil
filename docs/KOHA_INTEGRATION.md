@@ -47,6 +47,24 @@ Gateway ──HTTPS──► https://KOHA-SERVER/api/v1/...
 
 Bağlantı testi bu yetkileri **örnek salt-okunur çağrılarla** sınar ve eksikleri panelde uyarı olarak gösterir.
 
+### 1.2 Pilot / entegrasyon test ortamı gereksinimleri
+
+Pilot kurumun sağlayacağı Koha test ortamında (üretimden ayrı) bulunması gerekenler:
+
+- [ ] Koha sürümü 24.05 veya üzeri, **HTTPS** ile erişilebilir REST API (`/api/v1/`)
+- [ ] `RESTOAuth2ClientCredentials` açık; servis hesabı (§1.1 yetkileriyle) ve API anahtarı (client id/secret)
+      — secret, MirAkıl'a güvenli kanaldan iletilir ve yalnızca admin panelinden girilir (repoya/e-postaya yazılmaz)
+- [ ] Pilot sunucunun sabit çıkış IP'si Koha test ortamında allowlist'te
+- [ ] MirAkıl Koha eklentisinin kurulabilmesi (`UseKohaPlugins` açık, eklenti yükleme yetkisi)
+- [ ] Test patronları: farklı kategoriler (öğrenci, akademisyen, personel), en az biri kısıtlı (debarred),
+      biri üyeliği dolmuş, biri borçlu; fakülte/bölüm extended attribute'ları dolu
+- [ ] Test materyalleri: farklı materyal türleri, birden çok şube, ödünç verilebilir / verilemez nüshalar
+- [ ] Dolaşım kuralları: yenileme limiti, rezervasyon kuralları, gecikme cezası tanımlı
+- [ ] Senaryolar için veri: aktif ödünç (yaklaşan, bugün iade, gecikmiş), rezervasyonlu materyal,
+      hazır bekleyen rezervasyon, açık borç
+- [ ] Arama motoru bilgisi (Zebra / Elasticsearch) ve MARC formatı (MARC21 / UNIMARC)
+- [ ] Test sırasında dolaşım işlemi (ödünç verme/iade) yapabilecek bir personel kullanıcısı (senaryo hazırlamak için)
+
 ## 2. Adapter Mimarisi
 
 ```mermaid

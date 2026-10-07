@@ -48,13 +48,13 @@ hatırlatma push bildirimi alması.
 
 ### Faz 0 — Temel ve Doğrulama (1–2 hafta)
 
-- [x] Temel mimari kararlar ([DECISIONS.md](./DECISIONS.md) D1–D8)
 - [ ] Monorepo iskeleti: pnpm + Turborepo, `packages/config`, lint/format/typecheck, CI
 - [ ] `infra/docker/compose.base.yml` + `compose.dev.yml`: PostgreSQL, Redis, api, worker, Caddy
 - [ ] KTD ile 24.05, 24.11, 25.05 ve 25.11 test Koha'ları + örnek veri
 - [ ] **Koha spike:** [KOHA_INTEGRATION.md](./KOHA_INTEGRATION.md) §3 tablosundaki her endpoint'in
       gerçek sürümlerde doğrulanması, fixture'ların kaydedilmesi, belgede "≈" işaretlerinin kaldırılması
-- [ ] Açık önerilerin (D9–D16) netleşmesi
+- [x] Tüm mimari kararlar (D1–D21)
+- [ ] Secret yönetimi temeli: `.gitignore`, `.env.example` dosyaları, gitleaks pre-commit + CI
 
 **Çıktı:** Çalışan boş api/mobile/admin uygulamaları, doğrulanmış Koha yetenek matrisi.
 
@@ -165,11 +165,9 @@ hatırlatma push bildirimi alması.
 
 ## 6. Açık Konular
 
-Onaylanan kararlar [DECISIONS.md](./DECISIONS.md)'de (D1–D8). Hâlâ girdinize ihtiyaç duyulanlar:
+Onaylanan kararlar [DECISIONS.md](./DECISIONS.md)'de (D1–D21). Faz 0 ile paralel ilerleyecek konular:
 
-1. **D9–D16 önerileri** (admin framework, dijital kart MVP'de, eklentinin monorepo içinde olması, admin
-   rolleri, Push Relay, anahtar yönetimi, self-hosted hata takibi) — itiraz yoksa onaylı kabul edilecek.
-2. **Pilot kurumlar**, Koha sürümleri ve test için Koha erişimi (staging Koha + servis hesabı).
-3. **KVKK hukuki değerlendirmesi:** Expo (push + EAS Update) ve APNs/FCM üzerinden yurt dışına aktarılan veriler.
-4. **Alan adları:** Tenant Directory / API / universal link alan adları (ör. `mirakil-kutuphane.com`).
-5. **Pilot için sunucu:** Türkiye'deki hangi VPS / özel sunucu / MirAkıl sunucusu kullanılacak?
+1. **Koha test ortamı** erişimi — [KOHA_INTEGRATION.md §1.2](./KOHA_INTEGRATION.md#12-pilot--entegrasyon-test-ortamı-gereksinimleri) kontrol listesi.
+2. **Pilot sunucu** (4 vCPU / 8 GB / 80–160 GB NVMe, sabit IP) ve `koha-tr.com` DNS kayıtları.
+3. **KVKK hukuki görüşü** (Expo, APNs, FCM, EAS Update).
+4. Sunucu dışı yedek hedefi (Türkiye'de ikinci lokasyon).

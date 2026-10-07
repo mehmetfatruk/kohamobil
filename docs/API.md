@@ -8,7 +8,7 @@
 
 | Konu | Kural |
 |---|---|
-| Taban URL | Tenant'ın `apiBaseUrl` değeri (Tenant Directory'den gelir; CENTRAL'de ör. `https://api.mirakil-kutuphane.com`) — **yalnızca HTTPS**. Mobil uygulamada sabit kodlanan tek adres Tenant Directory'dir ([DEPLOYMENT.md §4](./DEPLOYMENT.md#4-tenant-dizini-tenant-directory)) |
+| Taban URL | Tenant'ın `apiBaseUrl` değeri (Tenant Directory'den gelir; CENTRAL'de ör. `https://api.koha-tr.com`) — **yalnızca HTTPS**. Mobil uygulamada sabit kodlanan tek adres Tenant Directory'dir ([DEPLOYMENT.md §4](./DEPLOYMENT.md#4-tenant-dizini-tenant-directory)) |
 | Versiyonlama | URL'de major (`/mobile/v1`). Geriye dönük uyumsuz değişiklik = `v2` |
 | Format | JSON, `camelCase`, tarih `ISO 8601` (UTC, `Z`), sadece-tarih alanları `YYYY-MM-DD` (tenant saat dilimine göre) |
 | Para | `{ "amount": "12.50", "currency": "TRY" }` — string decimal (float hatası olmasın) |
@@ -36,7 +36,7 @@
 
 ```json
 {
-  "type": "https://docs.mirakil-kutuphane.com/errors/LOAN_RENEWAL_ON_HOLD",
+  "type": "https://api.koha-tr.com/errors/LOAN_RENEWAL_ON_HOLD",
   "title": "Renewal not possible",
   "status": 409,
   "code": "LOAN_RENEWAL_ON_HOLD",
@@ -83,7 +83,7 @@ Böylece:
       "secondaryColor": "#F2B705"
     },
     "deploymentMode": "CENTRAL",
-    "apiBaseUrl": "https://api.mirakil-kutuphane.com",
+    "apiBaseUrl": "https://api.koha-tr.com",
     "locale": "tr",
     "timezone": "Europe/Istanbul",
     "currency": "TRY",

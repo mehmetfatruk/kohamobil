@@ -1,6 +1,6 @@
 # DEPLOYMENT — Barındırma ve Dağıtım Mimarisi
 
-> Durum: **Taslak v0.1.**
+> Durum: **Taslak v0.2.**
 >
 > **Onaylanan ilkeler** ([DECISIONS.md](./DECISIONS.md)):
 > - Kullanıcı, kurum, cihaz, bildirim ve audit verilerinin bulunduğu merkezi backend'in **Türkiye'de
@@ -76,6 +76,23 @@ docker compose -f compose.base.yml -f compose.storage.yml -f compose.observabili
 docker compose run --rm api migrate
 ```
 
+### 2.1 Alan adları
+
+| Alan adı | Servis | Not |
+|---|---|---|
+| `api.koha-tr.com` | Gateway API (`/mobile/v1`, `/admin/v1`) | CENTRAL tenant'ların `apiBaseUrl` değeri |
+| `directory.koha-tr.com` | Tenant Directory | Mobilde sabit kodlanan **tek** adres; MVP'de Gateway ile aynı uygulama, ayrı host adı |
+| `admin.koha-tr.com` | Yönetim paneli | İsteğe bağlı IP kısıtı; `/admin/v1` çağrıları `api.koha-tr.com`'a (CORS yalnızca bu origin) |
+| `app.koha-tr.com` | Universal Links / App Links, SSO geri dönüşü, gizlilik politikası ve destek sayfaları | `/.well-known/apple-app-site-association`, `/.well-known/assetlinks.json` |
+| `relay.koha-tr.com` | MirAkıl Push Relay (ON_PREMISE fazında) | mTLS ile yalnızca kayıtlı kurulumlar |
+| `status.koha-tr.com` (öneri) | Durum sayfası | İsteğe bağlı |
+| `errors.koha-tr.com` / `ops.koha-tr.com` (öneri) | GlitchTip, Grafana | Yalnızca VPN/IP kısıtlı; mobil SDK'nın hata gönderdiği uç herkese açık olmalıdır |
+
+- Tüm host adları Caddy üzerinden TLS (Let's Encrypt, otomatik yenileme), HSTS (`includeSubDomains`) ile sunulur.
+- Alan adları marka değildir: mağaza adı ve uygulama içi marka **MirAkıl Kütüphane** olarak kalır.
+- Host adları kodda sabit değildir; ortam değişkenleriyle verilir (`PUBLIC_API_URL`, `DIRECTORY_URL`, ...).
+  Mobilde yalnızca derleme zamanı `EXPO_PUBLIC_DIRECTORY_URL` bulunur (gizli bilgi değildir).
+
 ## 3. CENTRAL Modeli (MVP)
 
 ```mermaid
@@ -114,9 +131,28 @@ flowchart TB
 
 | Aşama | Topoloji | Kaynak (yaklaşık) |
 |---|---|---|
-| Pilot (2–5 kurum, < 20 bin kullanıcı) | Tek sunucu, tüm servisler Compose ile | 8 vCPU, 16 GB RAM, 200 GB SSD + ayrı yedek alanı |
+| **Pilot (onaylandı)** — 1–3 kurum, < 20 bin kullanıcı | Türkiye lokasyonlu, **Koha üretim sunucusundan bağımsız** tek sunucu, tüm servisler Compose ile | **4 vCPU, 8 GB RAM, 80–160 GB NVMe** + sunucu dışında yedek alanı |
 | Büyüme (≤ 50 kurum) | 2 uygulama sunucusu (api+worker) + 1 DB sunucusu + 1 ops sunucusu | Uygulama: 4 vCPU/8 GB ×2 · DB: 8 vCPU/32 GB NVMe |
 | Ölçek (100+ kurum) | Swarm/Kubernetes, PostgreSQL birincil + replika (Patroni), Redis Sentinel | Yük testine göre (Faz 6) |
+
+**Pilot sunucu bellek bütçesi (8 GB):**
+
+| Servis | Bellek sınırı (Compose `mem_limit`) |
+|---|---|
+| PostgreSQL (`shared_buffers=1GB`) | 2 GB |
+| Redis (`maxmemory 384mb`, AOF) | 512 MB |
+| api ×2 | 2 × 512 MB |
+| worker ×1 | 512 MB |
+| Caddy + admin (Nginx) | 256 MB |
+| GlitchTip (web + worker; kendi PostgreSQL DB'si ortak sunucuda ayrı veritabanı olarak) | 1 GB |
+| Prometheus + Grafana + Loki (kısa saklama: 7 gün) | 1.5 GB |
+| İşletim sistemi + tampon | ~1 GB |
+
+- Pilotta Tempo (trace), MinIO ve OpenBao **kurulmaz**: logolar yerel volume'da, KEK Docker secret
+  dosyasında (bkz. §8). Kaynak yetmezse ilk olarak gözlemlenebilirlik yığını ayrı küçük bir sunucuya taşınır.
+- Disk: 80 GB yeterlidir (DB < 5 GB, loglar 7 gün); **160 GB önerilir** (yerel yedek kopyası + log payı).
+  Asıl yedek mutlaka **sunucu dışında** (Türkiye'de ikinci lokasyon) tutulur.
+- Bu sunucunun sabit çıkış IP'si, pilot kurumların Koha test ortamında allowlist'e eklenir.
 
 ### 3.2 Ağ ve güvenlik
 
@@ -152,7 +188,7 @@ Hedefler (pilot): RPO ≤ 15 dk, RTO ≤ 4 saat.
 merkezi **Tenant Directory** adresi bulunur; her tenant'ın Gateway adresi dizinden öğrenilir.
 
 ```
-Mobil ──(1) GET https://directory.mirakil-kutuphane.com/mobile/v1/tenants──► Tenant Directory (merkezi, TR)
+Mobil ──(1) GET https://directory.koha-tr.com/mobile/v1/tenants──► Tenant Directory (merkezi, TR)
        ◄── [{ code, name, logoUrl, city, deploymentMode, apiBaseUrl }]
 Mobil ──(2) GET {apiBaseUrl}/mobile/v1/tenants/{code}/config ──► İlgili Gateway
 Mobil ──(3) tüm diğer istekler {apiBaseUrl} ──► İlgili Gateway
@@ -252,3 +288,43 @@ kurumlara dağıtmak güvenli değildir. Öneri: **MirAkıl Push Relay** (merkez
 | `local` | Geliştirici makinesi, `compose.dev.yml` | KTD ile Koha 24.05 / 25.11 |
 | `staging` | Türkiye'de ayrı sunucu | Test Koha'ları + pilot kurumların test Koha'ları |
 | `production` | Türkiye'de CENTRAL kurulum | Pilot kurumlar |
+
+## 8. Secret Yönetimi
+
+**Kural: Hiçbir anahtar, şifre, token veya sertifika özel anahtarı repoda tutulmaz** (D17). Secret'lar
+yalnızca ortam/secret yönetimi üzerinden verilir.
+
+### 8.1 Secret türleri ve yerleri
+
+| Secret | Nerede tutulur | Uygulamaya nasıl ulaşır |
+|---|---|---|
+| PostgreSQL / Redis şifreleri | Sunucuda secret dosyası (`/etc/mirakil/secrets/`, `chmod 600`, root) | Docker secrets → `/run/secrets/*`, uygulama `*_FILE` değişkeninden okur |
+| KEK (envelope encryption ana anahtarı) | Pilot: Docker secret dosyası · Prod: OpenBao/Vault Transit (anahtar sunucudan çıkmaz) | `KeyProvider` |
+| JWT imza anahtarları | Docker secret (pilot) / OpenBao (prod) | `KeyProvider`, `kid` ile rotasyon |
+| Tenant Directory imza anahtarı | Docker secret / OpenBao | Yalnızca dizin servisi |
+| Koha client secret'ları, LDAP/OIDC secret'ları | **Veritabanında, KEK ile şifreli**; admin panelinden write-only girilir | Çalışma anında çözülür, Redis'e yazılmaz |
+| Expo access token, FCM servis hesabı, APNs `.p8` anahtarı | Push: sunucuda Docker secret · Build: **EAS Secrets / EAS credentials** | `NotificationProvider` |
+| `google-services.json`, `GoogleService-Info.plist` | EAS file secret (repoda değil) | EAS Build sırasında |
+| Mağaza imza anahtarları (keystore, sertifikalar) | EAS credentials (yedeği MirAkıl'ın şifreli kasasında) | EAS Build |
+| CI secret'ları (registry, deploy SSH anahtarı) | GitHub Actions Secrets / Environments (onaylı ortam) | CI |
+| Admin TOTP secret'ları | Veritabanında, KEK ile şifreli | — |
+
+### 8.2 Repoda bulunanlar
+
+- Yalnızca örnek dosyalar: `infra/docker/env/*.env.example` (değerler `CHANGE_ME` / boş), secret dosya
+  **adlarının** listesi, kurulum betiği (`scripts/generate-secrets.sh` — sunucuda rastgele değer üretir).
+- `.gitignore`: `.env`, `.env.*` (`.env.example` hariç), `secrets/`, `*.pem`, `*.p8`, `*.p12`, `*.jks`,
+  `*.keystore`, `google-services.json`, `GoogleService-Info.plist`.
+- Mobilde yalnızca `EXPO_PUBLIC_*` değişkenleri bulunur ve bunlar **gizli kabul edilmez** (uygulama
+  paketinden okunabilir); bu nedenle yalnızca herkese açık değerler (ör. dizin adresi) içerir.
+
+### 8.3 Koruma önlemleri
+
+- **gitleaks**: pre-commit hook + CI'da her push/PR'da tarama; bulgu varsa CI kırmızı.
+- GitHub secret scanning ve push protection açık.
+- Uygulama açılışında secret'lar doğrulanır; eksik/örnek değer (`CHANGE_ME`) ile **başlamaz** (fail-fast).
+- Log redact listesi: `password`, `secret`, `token`, `authorization`, `cookie`, `client_secret`, `refresh_token`.
+- Rotasyon: JWT anahtarları 90 gün, DB şifreleri yılda bir veya personel değişiminde, Koha client
+  secret'ları kurumla birlikte yılda bir; sızıntı şüphesinde derhal.
+- Secret'lara erişim en az iki MirAkıl yetkilisiyle sınırlı, erişimler kayıt altında.
+
