@@ -184,6 +184,25 @@ Hedefler (pilot): RPO ≤ 15 dk, RTO ≤ 4 saat.
 
 ## 4. Tenant Dizini (Tenant Directory)
 
+### 4.1 Kurum bulma yolları (D22)
+
+Kullanıcı kurumunu dört yoldan bulabilir; hepsi **yalnızca dizinde kayıtlı** kurumu döndürür:
+
+| Yol | Örnek girdi | Dizin sorgusu |
+|---|---|---|
+| Listeden seçim / arama | "Örnek", "Ankara" | `GET /mobile/v1/tenants?search=` |
+| Kurum kodu | `ornek-uni` | `GET /mobile/v1/tenants/resolve?code=ornek-uni` |
+| Kurumun Koha / OPAC adresi | `katalog.ornek.edu.tr` veya tam OPAC URL'i | `GET /mobile/v1/tenants/resolve?domain=katalog.ornek.edu.tr` (kurum kaydındaki alan adı listesiyle eşleşir) |
+| QR kod | `https://app.koha-tr.com/k/ornek-uni` | kod çıkarılır → `resolve?code=` |
+
+- QR, kütüphane girişine/bankoya asılır; yalnızca kurum kodunu taşır (Koha adresi, kimlik bilgisi yok).
+- `https://app.koha-tr.com/k/<kod>` aynı zamanda universal/app link'tir: uygulama yüklüyse kurumu seçili
+  açar, yüklü değilse mağaza bağlantılarını gösteren bir web sayfası açılır.
+- Örnek uygulamalardaki gibi "alan adını yaz, uygulama doğrudan Koha'ya bağlansın" modeli
+  **kullanılmaz**: kimlik bilgileri ve kişisel veri her zaman kurumun kayıtlı Gateway'i üzerinden akar.
+
+### 4.2 Dizin ve Gateway adresi
+
 `ON_PREMISE` desteğinin anahtarı: **Mobil uygulama Gateway adresini sabit kodlamaz.** Uygulamada yalnızca
 merkezi **Tenant Directory** adresi bulunur; her tenant'ın Gateway adresi dizinden öğrenilir.
 

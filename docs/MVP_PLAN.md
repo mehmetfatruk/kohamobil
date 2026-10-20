@@ -20,7 +20,9 @@ hatırlatma push bildirimi alması.
 | Dijital kart | Kart numarası barkod + QR |
 | Ödünçlerim | Liste, renk durumu, kalan gün, yenileme sayısı, yenilenebilirlik kontrolü, Yenile |
 | Rezervasyonlarım | Aktif rezervasyonlar (Bekliyor/Transit/Hazır/Askıda), iptal (politikaya göre) |
-| Katalog | Arama (plugin ile; plugin yoksa SRU fallback), sonuç kartı, detay, nüsha listesi, Rezervasyon Yap |
+| Kurum bulma | Liste/arama, kurum kodu, kurumun Koha/OPAC alan adı, kütüphanedeki QR kod (D22) |
+| Katalog | Arama (plugin ile; plugin yoksa SRU fallback), sonuç kartı, detay, nüsha listesi, Rezervasyon Yap (teslim şubesi seçimi) |
+| Keşif | Ana sayfada **Yeni Gelenler** vitrini ve tam listesi, **Materyal türüne göre keşfet** (D23) |
 | Borçlar | Toplam borç + açık kalemler |
 | Profil | Profil alanları (fakülte/bölüm eşleme dahil), Şifre Değiştir |
 | Kütüphane | Şubeler, iletişim, harita linki, çalışma saatleri (panelden) |
@@ -77,14 +79,23 @@ hatırlatma push bildirimi alması.
 
 ### Faz 2 — Mobil MVP (3–4 hafta, Faz 1 ile kısmen paralel)
 
-- [ ] Expo Router iskeleti, bottom tabs, tema sistemi (tenant renkleri + dark mode + kontrast)
-- [ ] i18n (tr/en)
-- [ ] Onboarding: Hoş geldiniz → Kurum Seçimi (Tenant Directory, `apiBaseUrl` saklama) → Login
-- [ ] Marka: uygulama adı/ikon "MirAkıl Kütüphane", `tr.com.mirakil.kutuphane`
-- [ ] SecureStore, api-client interceptor (single-flight refresh)
-- [ ] Ana Sayfa, Dijital Kart, Ödünçlerim (+ yenileme), Rezervasyonlarım (+ iptal), Borçlar, Profil, Kütüphane
-- [ ] TanStack Query persist (MMKV) + offline banner + `useOnlineMutation`
-- [ ] Feature flag'e göre dinamik menü
+> **Durum (D24):** Ekranlar Faz 1 ile paralel olarak **örnek veriyle** (`MockMobileApi`) yapıldı.
+> Ekranlar yalnızca `MobileApi` arayüzünü bilir; Gateway uçları hazır olunca `EXPO_PUBLIC_DATA_SOURCE=http`
+> ile gerçek API'ye geçilir, ekran kodu değişmez.
+
+- [x] Expo Router iskeleti, bottom tabs, tema sistemi (tenant renkleri + dark mode + kontrast)
+- [x] i18n (tr/en, dil değiştirme)
+- [x] Onboarding: Hoş geldiniz → Kurum Seçimi (liste, kod, alan adı, QR) → Login
+- [x] Marka: uygulama adı "MirAkıl Kütüphane", `tr.com.mirakil.kutuphane` (ikon tasarımı bekliyor)
+- [x] SecureStore (refresh token + kurum), access token yalnızca bellekte, açılışta oturum yenileme
+- [x] Ana Sayfa (özet kartları, hazır rezervasyon bandı, materyal türleri, Yeni Gelenler, duyuru), Dijital Kart (Code 39 + QR)
+- [x] Ödünçlerim (renk durumu, kalan gün, yenileme öncesi kontrol, Türkçe neden), Rezervasyonlarım (durum, sıra, iptal onayı), Borçlar (toplam, kalemler, hareketler)
+- [x] Katalog arama (alan seçimi, sayfalama), kayıt detayı, nüsha listesi, Rezervasyon Yap (teslim şubesi)
+- [x] Bildirimler listesi, bildirim tercihleri, Profil, Kütüphaneler ve çalışma saatleri, Duyurular, Şifre Değiştir
+- [x] Çevrim dışı bandı + yazma işlemlerinin engellenmesi; feature flag'e göre menü/bölüm gizleme
+- [ ] HTTP istemcisinde single-flight token yenileme (Faz 1 auth uçlarıyla birlikte)
+- [ ] Şifreli kalıcı çevrim dışı önbellek (MMKV — geliştirme build'i gerektirir)
+- [ ] Push kaydı (`PushRegistration`) — Faz 4
 - [ ] Sentry SDK → self-hosted GlitchTip, EAS Build (internal distribution)
 
 **Çıktı:** TestFlight / Play Internal Testing ile pilot kullanıcılara dağıtılabilir sürüm (katalog hariç).
@@ -94,8 +105,9 @@ hatırlatma push bildirimi alması.
 - [ ] MirAkıl Koha eklentisi v1: `info`, `search`, `patrons/{id}/renewability`, `notices/due` (sürüm matrisinde doğrulanan aralık)
 - [ ] Search strategy (plugin → SRU fallback), MARC21 (+ UNIMARC temel) normalizer
 - [ ] Kapak proxy + cache
-- [ ] Mobil: arama ekranı (alan seçimi), sonuç kartı, detay, nüsha listesi, Rezervasyon Yap (teslim şubesi seçimi)
-- [ ] Şifre değiştirme (backend + mobil)
+- [x] Mobil: arama ekranı, sonuç kartı, detay, nüsha listesi, Rezervasyon Yap, Yeni Gelenler, materyal türleri (örnek veriyle)
+- [ ] Gateway: `/catalog/*`, `/catalog/new-arrivals`, `/catalog/item-types` uçları ve eklenti v1 `new-arrivals`, `item-types`
+- [ ] Şifre değiştirme (backend)
 
 ### Faz 4 — Bildirimler (2–3 hafta)
 

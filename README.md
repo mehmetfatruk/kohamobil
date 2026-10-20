@@ -3,8 +3,15 @@
 MirAkıl Veri İşleme tarafından geliştirilen, birden fazla kurumun bağımsız kütüphane sistemlerini
 destekleyen multi-tenant iOS/Android kütüphane uygulaması. Koha kütüphane yönetim sistemleri ile entegre çalışır.
 
-> Durum: **Faz 0** — monorepo iskeleti, Koha uyumluluk katmanı çekirdeği, yerel Docker ortamı.
-> Kurulum ve komutlar: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+> Durum: **Faz 1–2 paralel** — mobil ekranlar örnek veriyle çalışıyor; Gateway uçları geliştiriliyor.
+> Kurulum, komutlar ve mobil demo: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+## Ekranlar (örnek veri)
+
+![Giriş ve ana sayfa](docs/screenshots/01-giris-ve-ana-sayfa.png)
+![Kitaplarım](docs/screenshots/02-kitaplarim.png)
+![Katalog](docs/screenshots/03-katalog.png)
+![Koyu tema ve profil](docs/screenshots/04-koyu-tema-profil.png)
 
 ## Dokümanlar
 

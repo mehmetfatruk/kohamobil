@@ -29,7 +29,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
   },
-  plugins: ['expo-router', 'expo-localization'],
+  plugins: [
+    'expo-router',
+    'expo-localization',
+    'expo-secure-store',
+    [
+      'expo-camera',
+      { cameraPermission: 'Kurumunuzun QR kodunu okutmak için kamera erişimi gerekir.' },
+    ],
+  ],
+  web: { bundler: 'metro', output: 'single' },
   experiments: { typedRoutes: true },
   extra: {
     // Herkese açık değer; gizli bilgi değildir. Ortama göre EXPO_PUBLIC_DIRECTORY_URL ile değişir.

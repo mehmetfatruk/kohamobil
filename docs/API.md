@@ -65,6 +65,7 @@ Böylece:
 | Metot | Yol | Açıklama |
 |---|---|---|
 | GET | `/tenants?search=&city=&limit=&cursor=` | Aktif kurumlar (ad, kod, şehir, logo, `deploymentMode`, `apiBaseUrl`) — Tenant Directory, yanıt imzalı |
+| GET | `/tenants/resolve?code=` · `?domain=` | Kurum kodu, kurumun Koha/OPAC alan adı veya QR içeriği ile **kayıtlı** kurumu bulur; bulunamazsa 404. Girilen adrese hiçbir koşulda bağlantı kurulmaz |
 | GET | `/tenants/{tenantCode}/config` | Kurum public config: tema, feature flags, auth providers |
 
 `GET /tenants/{tenantCode}/config` yanıtı:
@@ -326,9 +327,14 @@ Hatalar: `HOLD_NOT_ALLOWED`, `HOLD_TOO_MANY`, `HOLD_ALREADY_EXISTS`, `HOLD_ITEM_
 | GET | `/catalog/records/{recordId}` | `catalogSearch` | Bibliyografik detay |
 | GET | `/catalog/records/{recordId}/items` | `catalogSearch` | Nüsha listesi |
 | GET | `/catalog/records/{recordId}/holdability` | `holds` | Rezervasyon uygunluğu |
+| GET | `/catalog/new-arrivals?page=&limit=` | `catalogSearch` | Yeni Gelenler (son eklenen kayıtlar, en yeniden eskiye) |
+| GET | `/catalog/item-types` | `catalogSearch` | Materyal türleri (kod, ad, kayıt sayısı varsa) — "Materyal türüne göre keşfet" |
+| GET | `/catalog/records/{recordId}/pickup-locations` | `holds` | Teslim alınabilecek şubeler |
 | GET | `/covers/{recordId}?s=s\|m\|l` | — | Kapak görseli proxy (cache'li, auth'lu) |
 
-`GET /catalog/search?q=suç ve ceza&field=title&page=1&limit=20&materialType=&libraryId=&available=true`
+`GET /catalog/search?q=suç ve ceza&field=title&page=1&limit=20&itemType=&libraryId=&available=true`
+
+`q` boş ve `itemType` dolu ise o türdeki kayıtlar listelenir (materyal türüne göre keşif).
 
 `field`: `any` · `title` · `author` · `subject` · `isbn` · `issn` · `callNumber`.
 

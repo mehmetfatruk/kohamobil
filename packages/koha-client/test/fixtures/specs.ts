@@ -92,6 +92,8 @@ export function modernSpecWithPlugin(): Spec {
     '/contrib/mirakil/search': { get: ok },
     '/contrib/mirakil/patrons/{patron_id}/renewability': { get: ok },
     '/contrib/mirakil/notices/due': { get: ok },
+    '/contrib/mirakil/new-arrivals': { get: ok },
+    '/item_types': { get: ok },
   });
   return spec;
 }

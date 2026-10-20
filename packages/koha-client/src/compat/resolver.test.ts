@@ -22,6 +22,8 @@ describe('resolveCompatibility', () => {
     expect(report.profile['loans.renew']).toBe('rest.checkouts.renewals');
     expect(report.profile['catalog.search']).toBe('plugin.search');
     expect(report.profile['loans.renewabilityBulk']).toBe('plugin.renewability');
+    expect(report.profile['catalog.newArrivals']).toBe('plugin.newArrivals');
+    expect(report.profile['catalog.itemTypes']).toBe('rest.itemTypes');
   });
 
   it('eski Koha, eklentisiz: LIMITED; farklar alternatif stratejilerle karşılanır', () => {
@@ -31,6 +33,8 @@ describe('resolveCompatibility', () => {
     expect(report.profile['loans.renew']).toBe('rest.checkouts.renewal');
     expect(report.profile['holds.pickupLocations']).toBe('rest.libraries.all');
     expect(report.missing.mvp).toEqual(['catalog.search']);
+    // Yeni Gelenler eklentisiz ve /items olmadan desteklenmez → yalnızca o bölüm gizlenir
+    expect(report.profile['catalog.newArrivals']).toBeNull();
     expect(report.missing.core).toEqual([]);
   });
 

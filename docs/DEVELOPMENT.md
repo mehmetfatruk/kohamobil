@@ -44,6 +44,20 @@ pnpm --filter @mirakil/admin dev         # http://localhost:5173
 pnpm --filter @mirakil/mobile dev        # Expo
 ```
 
+## Mobil uygulamayı denemek (örnek veri)
+
+Arka uç olmadan tüm ekranlar örnek veriyle çalışır (`apps/mobile/src/api/mock`).
+
+```sh
+pnpm build                               # paylaşılan paketler
+pnpm --filter @mirakil/mobile dev        # QR'ı telefondaki Expo Go ile okutun (SDK 57)
+pnpm --filter @mirakil/mobile web        # veya tarayıcıda önizleme
+```
+
+- Kurum: listeden seçin ya da `ornek-uni`, `kent-halk` kodu veya `katalog.ornek.edu.tr` adresini girin.
+- Giriş: kullanıcı adı `demo` (veya kart no `20231234`), şifre `demo`.
+- Gerçek Gateway'e bağlamak için: `EXPO_PUBLIC_DATA_SOURCE=http`.
+
 ## Günlük komutlar
 
 ```sh

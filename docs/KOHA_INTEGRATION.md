@@ -263,6 +263,8 @@ Yollar `https://KOHA-SERVER/api/v1` altındadır.
 | Duyurular (OPAC haberleri) | `additional_contents` REST'i sürüme bağlı | `GET /contrib/mirakil/news` (opsiyonel içe aktarım) | **Gateway DB** (panelden) — MVP |
 | Toplu bildirim verisi (performans) | Büyük kurumlarda sayfalı `checkouts` taraması ağır olabilir | `GET /contrib/mirakil/notices/due?from=&to=&patron_ids=` | Core `q` filtresi ile sayfalı tarama |
 | Kesin Koha sürümü | Core'da sürüm endpoint'i yok | `info` | OPAC `meta generator` |
+| Yeni Gelenler (D23) | Core'da "son eklenen kayıtlar" sorgusu yok; OPAC görünürlüğü (suppression) hesaba katılmalı | `GET /contrib/mirakil/new-arrivals?days=&limit=` | `GET /items?_order_by=-acquisition_date` (≈, doğrulanacak) → kayıtlara gruplama; yoksa bölüm gizlenir |
+| Materyal türleri + kayıt sayıları (D23) | `/item_types` sayı vermez, OPAC'ta gizli türleri ayırt etmez | `GET /contrib/mirakil/item-types` | `GET /item_types` (sayısız) |
 | Kapak görseli | Local cover REST'i sınırlı | (gerekmez) | `/cgi-bin/koha/opac-image.pl?biblionumber=` veya ISBN ile OpenLibrary/Google Books (Gateway proxy) |
 | LDAP/SAML/OIDC ile giriş yapan kullanıcıyı patron'a eşleme | Eşleme için patron araması gerekir | (gerekmez) | `GET /patrons?userid=` / `cardnumber=` / `email=` |
 

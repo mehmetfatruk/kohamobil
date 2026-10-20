@@ -226,6 +226,30 @@ export const OPERATIONS = {
       description: 'GET /patrons/{id}/account/debits',
     },
   ]),
+  'catalog.newArrivals': op('optional', [
+    {
+      id: 'plugin.newArrivals',
+      requires: ['plugin.newArrivals'],
+      description: 'Eklenti: son eklenen kayıtlar (items.dateaccessioned), OPAC görünürlüğüne göre',
+    },
+    {
+      id: 'rest.items.recentAcquisitions',
+      requires: ['rest.items.list', 'rest.biblios.get'],
+      description: 'GET /items?_order_by=-acquisition_date → kayıtlara gruplama',
+    },
+  ]),
+  'catalog.itemTypes': op('optional', [
+    {
+      id: 'plugin.itemTypes',
+      requires: ['plugin.itemTypes'],
+      description: "Eklenti: OPAC'ta görünen türler + kayıt sayıları",
+    },
+    {
+      id: 'rest.itemTypes',
+      requires: ['rest.itemTypes.list'],
+      description: 'GET /item_types (sayı olmadan)',
+    },
+  ]),
   'system.info': op('optional', [
     {
       id: 'plugin.info',

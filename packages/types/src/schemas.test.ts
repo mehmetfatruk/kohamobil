@@ -4,6 +4,7 @@ import {
   DEFAULT_FEATURE_FLAGS,
   FeatureFlagsSchema,
   MirakilPushDataV1Schema,
+  parseTenantLookup,
   TenantPublicConfigSchema,
 } from './index.js';
 
@@ -63,4 +64,27 @@ describe('MirakilPushDataV1Schema', () => {
       false,
     );
   });
+});
+
+describe('parseTenantLookup', () => {
+  it.each([
+    ['ornek-uni', { kind: 'code', code: 'ornek-uni' }],
+    ['  ORNEK-UNI ', { kind: 'code', code: 'ornek-uni' }],
+    ['https://app.koha-tr.com/k/ornek-uni', { kind: 'code', code: 'ornek-uni' }],
+    ['mirakil://tenant/ornek-uni?src=qr', { kind: 'code', code: 'ornek-uni' }],
+    [
+      'https://katalog.ornek.edu.tr/cgi-bin/koha/opac-main.pl',
+      { kind: 'domain', domain: 'katalog.ornek.edu.tr' },
+    ],
+    ['koha.ornek.edu.tr', { kind: 'domain', domain: 'koha.ornek.edu.tr' }],
+  ])('%s', (input, expected) => {
+    expect(parseTenantLookup(input)).toEqual(expected);
+  });
+
+  it.each(['', 'https://app.koha-tr.com/k/<script>', 'a', 'javascript:alert(1)'])(
+    'geçersiz: %s',
+    (input) => {
+      expect(parseTenantLookup(input)).toBeNull();
+    },
+  );
 });

@@ -58,6 +58,7 @@ export const SPEC_CAPABILITIES = {
   'rest.biblios.items': { method: 'get', path: '/biblios/{}/items' },
   'rest.items.get': { method: 'get', path: '/items/{}' },
   'rest.itemTypes.list': { method: 'get', path: '/item_types' },
+  'rest.items.list': { method: 'get', path: '/items' },
   'rest.authorisedValues.list': {
     method: 'get',
     path: '/authorised_value_categories/{}/authorised_values',
@@ -75,6 +76,8 @@ export const SPEC_CAPABILITIES = {
   'plugin.account.lines': { method: 'get', path: '/contrib/mirakil/patrons/{}/account/lines' },
   'plugin.password.change': { method: 'post', path: '/contrib/mirakil/patrons/{}/password' },
   'plugin.notices.due': { method: 'get', path: '/contrib/mirakil/notices/due' },
+  'plugin.newArrivals': { method: 'get', path: '/contrib/mirakil/new-arrivals' },
+  'plugin.itemTypes': { method: 'get', path: '/contrib/mirakil/item-types' },
 } as const satisfies Record<string, SpecRule>;
 
 export type SpecCapabilityId = keyof typeof SPEC_CAPABILITIES;

@@ -73,7 +73,7 @@ Aşağıdaki maddeler gereksinimlerde yer almıyor veya netleştirilmesi gerekiy
 10. **Dijital kütüphane kartı.** Öğrencilerin en çok kullanacağı özelliklerden biri: kart numarasını
     barkod (Code39/Code128) ve QR olarak göstermek. → MVP'ye eklenmesini öneriyorum (düşük maliyet).
 11. **Kurum bulma deneyimi.** 100+ kurumda liste yetersiz kalır. → Arama kutusu, şehir filtresi,
-    ileride **deep link / QR ile kurum seçimi** (`mirakil://tenant/ankara-uni`).
+    kurum kodu, kurumun Koha/OPAC alan adı ve **QR ile kurum seçimi** — MVP'de (D22).
 12. **Zaman dilimi ve para birimi** tenant bazlı olmalı (`Europe/Istanbul`, `TRY`), bildirimlerin
     "iade günü" hesabı tenant saat dilimine göre yapılmalı.
 13. **Rezervasyon için teslim alma şubesi (pickup location)** seçimi ve kayıt düzeyi (biblio)
@@ -193,7 +193,9 @@ flowchart LR
 ```
 app/
   (onboarding)/welcome            Hoş geldiniz
-  (onboarding)/select-tenant      Kurumunuzu Seçin (arama)
+  (onboarding)/select-tenant      Kurumunuzu Seçin (liste, kod, alan adı)
+  (onboarding)/scan               QR ile kurum seçimi
+  browse                          Yeni Gelenler / materyal türüne göre liste
   (auth)/login                    Kullanıcı adı / kart no + şifre (tenant'a göre provider)
   (tabs)/index                    Ana Sayfa (özet kartları, dijital kart)
   (tabs)/catalog/index            Arama

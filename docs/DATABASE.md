@@ -341,6 +341,7 @@ erDiagram
 | Tablo | Kısıt / Index | Amaç |
 |---|---|---|
 | `tenants` | `UNIQUE (code)`; `code ~ '^[a-z0-9-]{2,40}$'` | Kurum kodu URL/deep link güvenli |
+| `tenant_domains` | `PRIMARY KEY (domain)`; `tenant_id` FK | Alan adı ile kurum bulma (`resolve?domain=`); bir alan adı tek kuruma ait (D22) |
 | `users` | `UNIQUE (tenant_id, koha_patron_id)` | Aynı patron için tek platform kullanıcısı |
 | `users` | `INDEX (tenant_id, membership_expires_at)` | Üyelik bitişi taraması |
 | `user_identities` | `UNIQUE (provider_id, external_subject)` | SSO eşleme |

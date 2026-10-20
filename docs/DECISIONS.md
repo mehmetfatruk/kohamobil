@@ -26,6 +26,9 @@ Onaylanan ve açık kalan mimari kararlar. Her karar ilgili dokümanda uygulanm�
 | D19 | **Pilot sunucu:** Türkiye lokasyonlu, Koha üretim sunucusundan bağımsız, 4 vCPU / 8 GB RAM / 80–160 GB NVMe | ✅ Onaylandı | 2026-10-07 | [DEPLOYMENT.md §3.1](./DEPLOYMENT.md#31-önerilen-boyutlandırma) |
 | D20 | **Koha test ortamı** MirAkıl tarafından sağlanacak (REST API, kullanıcı, materyal, dolaşım senaryoları) | ✅ Onaylandı | 2026-10-07 | [KOHA_INTEGRATION.md §1.2](./KOHA_INTEGRATION.md#12-pilot--entegrasyon-test-ortamı-gereksinimleri) |
 | D21 | **KVKK:** Expo, APNs, FCM üzerinden yurt dışı aktarım için ayrıca hukuki görüş alınacak; teknik tasarımda push'ta kişisel veri taşınmaz | ✅ Onaylandı (hukuki görüş bekleniyor) | 2026-10-07 | [NOTIFICATIONS.md §11](./NOTIFICATIONS.md) |
+| D22 | **Kurum bulma:** liste/arama + kurum kodu + kurumun Koha/OPAC alan adı + kütüphanedeki QR (`https://app.koha-tr.com/k/<kod>`). Girdi yalnızca Tenant Directory'deki kayıtlı kurumu bulur; mobil girilen adrese doğrudan bağlanmaz | ✅ Onaylandı | 2026-10-20 | [DEPLOYMENT.md §4.1](./DEPLOYMENT.md#41-kurum-bulma-yolları-d22) |
+| D23 | **MVP'ye eklendi:** Yeni Gelenler (vitrin + liste) ve materyal türüne göre keşif; Koha tarafında eklenti öncelikli, REST yedekli strateji | ✅ Onaylandı | 2026-10-20 | [KOHA_INTEGRATION.md §4](./KOHA_INTEGRATION.md) |
+| D24 | **Mobil, arka uçla paralel geliştirilir:** ekranlar `MobileApi` arayüzüne yazılır; önce örnek veri (`MockMobileApi`), Gateway hazır oldukça `HttpMobileApi` | ✅ Onaylandı | 2026-10-20 | [MVP_PLAN.md Faz 2](./MVP_PLAN.md) |
 
 ## Açık konular
 
