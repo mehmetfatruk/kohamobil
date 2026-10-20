@@ -9,6 +9,7 @@
  *   (telefon aynı Wi‑Fi'deki bu adres üzerinden Gateway'e bağlanır)
  *
  * Mobil uygulamayı tekrar örnek veriye döndürmek için: pnpm local:setup -- --mock
+ * Koha API anahtarını yeniden girmek için:             pnpm local:setup -- --reset
  */
 import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -88,8 +89,10 @@ for (const tenant of tenants.tenants.filter((t) => t.active)) {
   const auth = tenant.koha.auth;
   if (auth.kind !== 'oauth2') continue;
   const secretPath = join(localDir, auth.clientSecretFile ?? `${tenant.code}.secret`);
-  const needsId = !auth.clientId || /CHANGE_ME/.test(auth.clientId);
-  const needsSecret = !existsSync(secretPath);
+  // --reset: kayıtlı anahtarı yok sayıp yeniden sor
+  const reset = process.argv.includes('--reset');
+  const needsId = reset || !auth.clientId || /CHANGE_ME/.test(auth.clientId);
+  const needsSecret = reset || !existsSync(secretPath);
   if (!needsId && !needsSecret) continue;
   console.log(`\n${tenant.name} (${tenant.koha.baseUrl})`);
   console.log(

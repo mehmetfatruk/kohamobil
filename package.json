@@ -20,7 +20,8 @@
     "local:setup": "pnpm --filter @mirakil/api setup:local",
     "local:check": "pnpm --filter @mirakil/api koha:check",
     "local:api": "pnpm --filter @mirakil/api dev:local",
-    "live": "node scripts/live.mjs"
+    "live": "node scripts/live.mjs",
+    "local:reset": "pnpm --filter @mirakil/api setup:local --reset"
   },
   "devDependencies": {
     "lefthook": "^2.1.17",

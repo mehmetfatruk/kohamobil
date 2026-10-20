@@ -86,7 +86,13 @@ const spec = await step(
   () => 'tamam',
 );
 if (!spec) {
-  console.log('\nKoha API anahtarını (client id / secret) ve sunucu adresini kontrol edin.');
+  console.log(`
+Koha API anahtarı kabul edilmedi. Olası nedenler:
+  • Client ID veya secret yanlış girildi  → yeniden girmek için: pnpm local:setup -- --reset
+  • API anahtarı Koha'da pasif            → Koha personel arayüzü: anahtarın bağlı olduğu personel
+                                             hesabı → Diğer (More) → API anahtarlarını yönet → "Active"
+  • RESTOAuth2ClientCredentials kapalı     → Yönetim → Sistem tercihleri
+  • Sunucu adresi yanlış                   → apps/api/.local/tenants.json içindeki "baseUrl"`);
   process.exit(1);
 }
 const capabilities = new Set<CapabilityId>(detectSpecCapabilities(spec.data));
