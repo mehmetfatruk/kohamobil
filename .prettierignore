@@ -6,4 +6,3 @@ coverage
 .expo
 pnpm-lock.yaml
 docs/**/*.md
-apps/mobile/expo-env.d.ts

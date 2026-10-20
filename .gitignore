@@ -41,3 +41,6 @@ dump.rdb
 
 # Gateway yerel çalışma dosyaları (secret içerir)
 apps/api/.local/
+
+# Expo tarafından üretilir
+apps/mobile/expo-env.d.ts
