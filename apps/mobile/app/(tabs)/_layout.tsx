@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Redirect, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { ColorValue } from 'react-native';
 
@@ -19,11 +19,8 @@ const icon =
 export default function TabsLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const signedIn = useSession((s) => Boolean(s.accessToken && s.tenant));
   const features = useSession((s) => s.tenant?.features);
   const unread = useSummary().data?.unreadNotifications ?? 0;
-
-  if (!signedIn) return <Redirect href="/" />;
 
   return (
     <Tabs

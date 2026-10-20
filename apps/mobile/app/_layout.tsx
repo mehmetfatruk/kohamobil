@@ -5,7 +5,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ToastHost } from '../src/components/feedback';
@@ -22,19 +22,16 @@ function AppStack() {
   const { t } = useTranslation();
   const hydrated = useSession((s) => s.hydrated);
   const hydrate = useSession((s) => s.hydrate);
+  const signedIn = useSession((s) => Boolean(s.accessToken && s.tenant));
+  const hasTenant = useSession((s) => Boolean(s.tenant));
 
   useEffect(() => {
     void hydrate();
   }, [hydrate]);
 
-  if (!hydrated) {
-    return (
-      <View style={{ flex: 1, backgroundColor: theme.background }}>
-        <LoadingView />
-      </View>
-    );
-  }
-
+  // Gezinme yapısı HER ZAMAN çizilir (Expo Router gereksinimi); oturum bilgisi yüklenene kadar
+  // üstte bir yükleme katmanı gösterilir. Erişim kontrolü yönlendirmelerle değil korumalı
+  // ekran gruplarıyla yapılır — böylece yönlendirme döngüsü oluşamaz.
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <Stack
@@ -48,25 +45,38 @@ function AppStack() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(onboarding)/welcome" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(onboarding)/select-tenant"
-          options={{ title: t('onboarding.selectTenant') }}
-        />
-        <Stack.Screen
-          name="(onboarding)/scan"
-          options={{ title: t('onboarding.scanQr'), presentation: 'modal' }}
-        />
-        <Stack.Screen name="(onboarding)/login" options={{ title: t('auth.title') }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="record/[id]" options={{ title: t('record.title') }} />
-        <Stack.Screen name="browse" options={{ title: t('catalog.newArrivalsTitle') }} />
-        <Stack.Screen name="card" options={{ title: t('card.title'), presentation: 'modal' }} />
-        <Stack.Screen name="libraries" options={{ title: t('libraries.title') }} />
-        <Stack.Screen name="announcements" options={{ title: t('announcements.title') }} />
-        <Stack.Screen name="notification-preferences" options={{ title: t('prefs.title') }} />
-        <Stack.Screen name="change-password" options={{ title: t('password.title') }} />
+
+        {/* Yönlendirme hedefleri doğrudan son ekranlardır; ara yönlendirme yapan "/" kullanılmaz
+            (iç içe yönlendirme web'de güncelleme döngüsüne yol açıyordu). */}
+        <Stack.Protected guard={!signedIn} redirectTo="/(tabs)">
+          <Stack.Screen name="(onboarding)/welcome" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(onboarding)/select-tenant"
+            options={{ title: t('onboarding.selectTenant') }}
+          />
+          <Stack.Screen
+            name="(onboarding)/scan"
+            options={{ title: t('onboarding.scanQr'), presentation: 'modal' }}
+          />
+          <Stack.Screen name="(onboarding)/login" options={{ title: t('auth.title') }} />
+        </Stack.Protected>
+
+        <Stack.Protected guard={signedIn} redirectTo={hasTenant ? '/login' : '/welcome'}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="record/[id]" options={{ title: t('record.title') }} />
+          <Stack.Screen name="browse" options={{ title: t('catalog.newArrivalsTitle') }} />
+          <Stack.Screen name="card" options={{ title: t('card.title'), presentation: 'modal' }} />
+          <Stack.Screen name="libraries" options={{ title: t('libraries.title') }} />
+          <Stack.Screen name="announcements" options={{ title: t('announcements.title') }} />
+          <Stack.Screen name="notification-preferences" options={{ title: t('prefs.title') }} />
+          <Stack.Screen name="change-password" options={{ title: t('password.title') }} />
+        </Stack.Protected>
       </Stack>
+      {!hydrated ? (
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.background }]}>
+          <LoadingView />
+        </View>
+      ) : null}
       <ToastHost />
     </View>
   );
