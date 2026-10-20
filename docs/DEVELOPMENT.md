@@ -12,7 +12,7 @@
 | Dizin | İçerik |
 |---|---|
 | `apps/api` | Gateway API (`src/main.ts`) ve worker (`src/worker.ts`) — NestJS 12, Fastify, ESM |
-| `apps/mobile` | Expo (SDK 58) + Expo Router mobil uygulaması |
+| `apps/mobile` | Expo (SDK 57) + Expo Router mobil uygulaması |
 | `apps/admin` | React + Vite yönetim paneli |
 | `packages/types` | Paylaşılan zod şemaları (DTO, hata kodları, feature flag'ler, push payload) |
 | `packages/i18n` | Türkçe (varsayılan) / İngilizce metinler, hata mesajları, push şablonları |
@@ -47,7 +47,7 @@ pnpm --filter @mirakil/mobile dev        # Expo
 ## Mobil uygulamayı denemek (örnek veri)
 
 Arka uç olmadan tüm ekranlar örnek veriyle çalışır (`apps/mobile/src/api/mock`).
-Proje **Expo SDK 58** kullanır; telefondaki Expo Go uygulaması güncel olmalıdır.
+Proje **Expo SDK 57** kullanır (mağazadaki iPhone Expo Go sürümüyle uyumlu). Expo Go "requires a newer version" derse uygulamayı güncelleyin; Expo Go ayarlarındaki "Supported SDK" değeri projeninkiyle aynı olmalıdır. `npx expo start` yalnızca `apps/mobile` içinde çalıştırılır (kökte çalıştırmak `Unable to resolve "../../App"` hatası verir); en kolayı kökten `pnpm live`.
 
 ### Windows (PowerShell veya Komut İstemi)
 

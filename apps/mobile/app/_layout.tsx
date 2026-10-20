@@ -23,7 +23,6 @@ function AppStack() {
   const hydrated = useSession((s) => s.hydrated);
   const hydrate = useSession((s) => s.hydrate);
   const signedIn = useSession((s) => Boolean(s.accessToken && s.tenant));
-  const hasTenant = useSession((s) => Boolean(s.tenant));
 
   useEffect(() => {
     void hydrate();
@@ -46,9 +45,9 @@ function AppStack() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
 
-        {/* Yönlendirme hedefleri doğrudan son ekranlardır; ara yönlendirme yapan "/" kullanılmaz
-            (iç içe yönlendirme web'de güncelleme döngüsüne yol açıyordu). */}
-        <Stack.Protected guard={!signedIn} redirectTo="/(tabs)">
+        {/* Korumalı bir ekrana erişilemediğinde Expo Router ilk ekrana ("index") döner; index de
+            oturum durumuna göre tek adımda son ekrana yönlendirir (SDK 57'de redirectTo yok). */}
+        <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="(onboarding)/welcome" options={{ headerShown: false }} />
           <Stack.Screen
             name="(onboarding)/select-tenant"
@@ -61,7 +60,7 @@ function AppStack() {
           <Stack.Screen name="(onboarding)/login" options={{ title: t('auth.title') }} />
         </Stack.Protected>
 
-        <Stack.Protected guard={signedIn} redirectTo={hasTenant ? '/login' : '/welcome'}>
+        <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="record/[id]" options={{ title: t('record.title') }} />
           <Stack.Screen name="browse" options={{ title: t('catalog.newArrivalsTitle') }} />
