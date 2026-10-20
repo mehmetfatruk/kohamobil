@@ -138,7 +138,7 @@ export default function Catalog() {
                 loading={results.isFetchingNextPage}
                 onPress={() => void results.fetchNextPage()}
               />
-            ) : null
+            ) : undefined
           }
         />
       )}

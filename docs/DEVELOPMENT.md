@@ -12,7 +12,7 @@
 | Dizin | İçerik |
 |---|---|
 | `apps/api` | Gateway API (`src/main.ts`) ve worker (`src/worker.ts`) — NestJS 12, Fastify, ESM |
-| `apps/mobile` | Expo (SDK 57) + Expo Router mobil uygulaması |
+| `apps/mobile` | Expo (SDK 58) + Expo Router mobil uygulaması |
 | `apps/admin` | React + Vite yönetim paneli |
 | `packages/types` | Paylaşılan zod şemaları (DTO, hata kodları, feature flag'ler, push payload) |
 | `packages/i18n` | Türkçe (varsayılan) / İngilizce metinler, hata mesajları, push şablonları |
@@ -47,12 +47,27 @@ pnpm --filter @mirakil/mobile dev        # Expo
 ## Mobil uygulamayı denemek (örnek veri)
 
 Arka uç olmadan tüm ekranlar örnek veriyle çalışır (`apps/mobile/src/api/mock`).
+Proje **Expo SDK 58** kullanır; telefondaki Expo Go uygulaması güncel olmalıdır.
 
-```sh
-pnpm build                               # paylaşılan paketler
-pnpm --filter @mirakil/mobile dev        # QR'ı telefondaki Expo Go ile okutun (SDK 57)
-pnpm --filter @mirakil/mobile web        # veya tarayıcıda önizleme
+### Windows (PowerShell veya Komut İstemi)
+
+```bat
+npm install -g pnpm@10
+git clone https://github.com/mehmetfatruk/kohamobil.git
+cd kohamobil
+git checkout claude/busy-heisenberg-t5a3zf
+pnpm install
+pnpm build
+cd apps\mobile
+pnpm dev
 ```
+
+- Terminalde çıkan QR kodu telefonda okutun: **Android** → Expo Go içinden "Scan QR code";
+  **iPhone** → normal Kamera uygulaması.
+- Telefon ve bilgisayar aynı Wi‑Fi'de olmalı. Bağlanamazsa: `pnpm exec expo start --tunnel`.
+- Tarayıcıda önizleme: `pnpm web`.
+
+### Demo hesabı
 
 - Kurum: listeden seçin ya da `ornek-uni`, `kent-halk` kodu veya `katalog.ornek.edu.tr` adresini girin.
 - Giriş: kullanıcı adı `demo` (veya kart no `20231234`), şifre `demo`.

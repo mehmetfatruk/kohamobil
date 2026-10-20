@@ -51,7 +51,7 @@ export default function Browse() {
                 loading={list.isFetchingNextPage}
                 onPress={() => void list.fetchNextPage()}
               />
-            ) : null
+            ) : undefined
           }
         />
       )}
