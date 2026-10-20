@@ -33,8 +33,9 @@ export const TenantEntrySchema = z.object({
   shortName: z.string().optional(),
   city: z.string().optional(),
   logoUrl: z.url().optional(),
-  primaryColor: HexColor.default('#1A73E8'),
-  secondaryColor: HexColor.default('#0B3D91'),
+  // MirAkıl kurumsal renkleri (uygulama şu an kurum rengini kullanmıyor, bkz. D27)
+  primaryColor: HexColor.default('#0055A4'),
+  secondaryColor: HexColor.default('#0F4A74'),
   /** Kullanıcının yazabileceği / QR'dan gelebilecek alan adları (ör. katalog.ornek.edu.tr) */
   domains: z.array(z.string().toLowerCase()).default([]),
   timezone: z.string().default('Europe/Istanbul'),

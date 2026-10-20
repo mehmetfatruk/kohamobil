@@ -1,6 +1,7 @@
 import type { TenantDirectoryEntry } from '@mirakil/types';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
+import { font } from '../fonts';
 import { useTheme } from '../theme';
 
 const initials = (name: string) =>
@@ -49,5 +50,5 @@ export function TenantLogo({
 
 const styles = StyleSheet.create({
   box: { alignItems: 'center', justifyContent: 'center' },
-  text: { fontWeight: '800', letterSpacing: -0.5 },
+  text: { letterSpacing: -0.5, ...font('800', true) },
 });

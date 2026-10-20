@@ -9,6 +9,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ToastHost } from '../src/components/feedback';
+import { font, useAppFonts } from '../src/fonts';
 import { LoadingView } from '../src/components/ui';
 import { bindOnlineManager } from '../src/hooks/useOnline';
 import { queryClient } from '../src/lib/query-client';
@@ -22,6 +23,7 @@ function AppStack() {
   const { t } = useTranslation();
   const hydrated = useSession((s) => s.hydrated);
   const hydrate = useSession((s) => s.hydrate);
+  const fontsReady = useAppFonts();
   const signedIn = useSession((s) => Boolean(s.accessToken && s.tenant));
 
   useEffect(() => {
@@ -45,7 +47,7 @@ function AppStack() {
         screenOptions={{
           headerStyle: { backgroundColor: theme.background },
           headerTintColor: theme.primary,
-          headerTitleStyle: { color: theme.text },
+          headerTitleStyle: { color: theme.text, ...font('700', true) },
           headerShadowVisible: false,
           headerBackTitle: t('common.back'),
           contentStyle: { backgroundColor: theme.background },
@@ -79,7 +81,7 @@ function AppStack() {
           <Stack.Screen name="change-password" options={{ title: t('password.title') }} />
         </Stack.Protected>
       </Stack>
-      {!hydrated ? (
+      {!hydrated || !fontsReady ? (
         <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.background }]}>
           <LoadingView />
         </View>

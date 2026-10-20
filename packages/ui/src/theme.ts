@@ -1,9 +1,15 @@
 import { ensureContrast, mix, onColor, shade } from './color.js';
 
-/** MirAkıl temel tasarım sistemi; kurum renkleri yalnızca vurgu renklerini değiştirir. */
+/**
+ * MirAkıl kurumsal renkleri — mirakil web sitesi tasarım sistemiyle aynı (DESIGN.md v2):
+ * logo mavisi tek baskın renk, panellerde maviden lacivere geçiş.
+ */
 export const MIRAKIL_BRAND = {
-  primary: '#1A73E8',
-  secondary: '#0B3D91',
+  primary: '#0055A4',
+  secondary: '#0F4A74',
+  bright: '#0A8FD6',
+  /** grad-brand: linear-gradient(135deg, #0a63b8, #0055a4, #0f4a74) */
+  gradient: ['#0A63B8', '#0055A4', '#0F4A74'],
 } as const;
 
 export type ColorScheme = 'light' | 'dark';
@@ -25,8 +31,9 @@ export interface ThemeColors {
   primarySoft: string;
   secondary: string;
   onSecondary: string;
-  /** Başlık geçişi (gradient): kurum renginden koyu tonuna */
+  /** Başlık geçişi (gradient): açık mavi → logo mavisi → lacivert */
   heroStart: string;
+  heroMid: string;
   heroEnd: string;
   onHero: string;
   /** Ödünç durum renkleri (docs: yeşil / turuncu / kırmızı) ve yumuşak zeminleri */
@@ -45,22 +52,23 @@ type Neutrals = Pick<
 >;
 
 const NEUTRALS: Record<ColorScheme, Neutrals> = {
+  // Mavi tonlu nötrler (web: ink, ink-muted, surface-1/2, hairline)
   light: {
-    background: '#F3F5F9',
+    background: '#F4F7FB',
     surface: '#FFFFFF',
-    surfaceAlt: '#EDF0F5',
-    text: '#0F172A',
-    textMuted: '#5B6474',
-    border: '#E2E7EE',
-    shadow: '#0F172A',
+    surfaceAlt: '#E8EEF6',
+    text: '#122033',
+    textMuted: '#4F5D6E',
+    border: '#E1E8F0',
+    shadow: '#0F4A74',
   },
   dark: {
-    background: '#0A0D12',
-    surface: '#151A21',
-    surfaceAlt: '#1E242D',
-    text: '#F1F5F9',
-    textMuted: '#9AA4B2',
-    border: '#2A313B',
+    background: '#08121D',
+    surface: '#0F1E2E',
+    surfaceAlt: '#17293D',
+    text: '#EAF1F8',
+    textMuted: '#9FB1C4',
+    border: '#21374F',
     shadow: '#000000',
   },
 };
@@ -69,8 +77,9 @@ const STATUS: Record<
   ColorScheme,
   Pick<ThemeColors, 'statusOk' | 'statusWarning' | 'statusDanger'>
 > = {
-  light: { statusOk: '#15803D', statusWarning: '#B45309', statusDanger: '#B91C1C' },
-  dark: { statusOk: '#4ADE80', statusWarning: '#FBBF24', statusDanger: '#F87171' },
+  // Web: success #24a148, warning #f1c21b, error #d42f2f — metin olarak okunur tonları
+  light: { statusOk: '#1E8A3E', statusWarning: '#A36A00', statusDanger: '#D42F2F' },
+  dark: { statusOk: '#4CC46E', statusWarning: '#F1C21B', statusDanger: '#F07070' },
 };
 
 /** Durum/vurgu renginin zemine karışmış yumuşak tonu. */
@@ -83,16 +92,23 @@ export function createTheme(
 ): ThemeColors {
   const neutrals = NEUTRALS[scheme];
   const brand = tenant.primaryColor ?? MIRAKIL_BRAND.primary;
+  const isMirakil = brand.toUpperCase() === MIRAKIL_BRAND.primary;
   // Vurgu rengi hem ekran zemininde hem kart zemininde okunur olmalı.
   const readable = (color: string) =>
     ensureContrast(ensureContrast(color, neutrals.background, 3), neutrals.surface, 3);
-  const primary = readable(brand);
+  // Koyu temada logo mavisi zemine gömülür; sitedeki parlak mavi (brand-bright) kullanılır.
+  const primary = readable(scheme === 'dark' && isMirakil ? MIRAKIL_BRAND.bright : brand);
   const secondary = readable(tenant.secondaryColor ?? MIRAKIL_BRAND.secondary);
-  // Başlık geçişi kurumun asıl rengiyle başlar ve koyulaşır; üzerindeki metin her iki uçta okunur.
-  const startRaw = scheme === 'light' ? brand : shade(brand, 0.25);
-  const onHero = onColor(startRaw);
-  const heroStart = ensureContrast(startRaw, onHero, 3);
-  const heroEnd = ensureContrast(shade(brand, scheme === 'light' ? 0.45 : 0.65), onHero, 3);
+  // Başlık geçişi: MirAkıl için sitedeki grad-brand; başka renkte aynı ilişki (açık → ana → koyu).
+  // Üzerindeki metin üç durakta da okunur kalır.
+  const dim = scheme === 'dark' ? 0.25 : 0;
+  const [rawStart, rawMid, rawEnd] = isMirakil
+    ? MIRAKIL_BRAND.gradient.map((c) => (dim ? shade(c, dim) : c))
+    : [shade(brand, dim - 0.08), shade(brand, dim), shade(brand, dim + 0.35)];
+  const onHero = onColor(rawMid!);
+  const heroStart = ensureContrast(rawStart!, onHero, 3);
+  const heroMid = ensureContrast(rawMid!, onHero, 3);
+  const heroEnd = ensureContrast(rawEnd!, onHero, 3);
   const status = STATUS[scheme];
   return {
     scheme,
@@ -104,6 +120,7 @@ export function createTheme(
     secondary,
     onSecondary: onColor(secondary),
     heroStart,
+    heroMid,
     heroEnd,
     onHero,
     statusOkSoft: soft(status.statusOk, neutrals, scheme),

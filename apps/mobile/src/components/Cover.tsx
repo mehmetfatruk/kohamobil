@@ -2,6 +2,8 @@ import { shade } from '@mirakil/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
+import { font } from '../fonts';
+
 const PALETTES = [
   ['#24476F', '#F4D35E'],
   ['#7A1E48', '#FBE3D6'],
@@ -104,6 +106,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
   },
   rule: { height: 3, width: '36%', borderRadius: 2, opacity: 0.85 },
-  title: { fontWeight: '800', letterSpacing: -0.2 },
-  author: { fontSize: 11, opacity: 0.85, fontWeight: '600' },
+  title: { letterSpacing: -0.2, ...font('800', true) },
+  author: { fontSize: 11, opacity: 0.85, ...font('600') },
 });

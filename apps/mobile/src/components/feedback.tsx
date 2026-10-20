@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 
 import { useOnline } from '../hooks/useOnline';
+import { font } from '../fonts';
 import { spacing, useTheme } from '../theme';
 
 type ToastKind = 'success' | 'error' | 'info';
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
   },
-  toastText: { flex: 1, fontSize: 14, fontWeight: '500' },
+  toastText: { flex: 1, fontSize: 14, ...font('500') },
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -113,5 +114,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: 6,
   },
-  bannerText: { flex: 1, color: '#000', fontSize: 13, fontWeight: '600' },
+  bannerText: { flex: 1, color: '#000', fontSize: 13, ...font('600') },
 });

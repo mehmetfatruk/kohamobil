@@ -44,8 +44,22 @@ describe('başlık geçişi', () => {
       for (const scheme of ['light', 'dark'] as const) {
         const theme = createTheme(scheme, { primaryColor });
         expect(contrastRatio(theme.onHero, theme.heroStart)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(theme.onHero, theme.heroMid)).toBeGreaterThanOrEqual(3);
         expect(contrastRatio(theme.onHero, theme.heroEnd)).toBeGreaterThanOrEqual(3);
       }
     },
   );
+});
+
+describe('MirAkıl kurumsal renkleri', () => {
+  it('varsayılan tema web sitesindeki logo mavisini ve geçişi kullanır', () => {
+    const theme = createTheme('light');
+    expect(theme.primary).toBe('#0055A4');
+    expect([theme.heroStart, theme.heroMid, theme.heroEnd]).toEqual([
+      '#0A63B8',
+      '#0055A4',
+      '#0F4A74',
+    ]);
+    expect(theme.onHero).toBe('#FFFFFF');
+  });
 });

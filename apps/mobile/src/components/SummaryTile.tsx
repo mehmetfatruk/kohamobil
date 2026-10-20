@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { font } from '../fonts';
 import { useTheme } from '../theme';
 import { IconBubble, type IconName } from './ui';
 
@@ -49,6 +50,6 @@ export function SummaryTile({
 
 const styles = StyleSheet.create({
   tile: { flex: 1, gap: 8, padding: 10, borderRadius: 14 },
-  value: { fontSize: 22, fontWeight: '800', letterSpacing: -0.4 },
-  label: { fontSize: 12, fontWeight: '500' },
+  value: { fontSize: 22, letterSpacing: -0.4, ...font('800', true) },
+  label: { fontSize: 12, ...font('500') },
 });

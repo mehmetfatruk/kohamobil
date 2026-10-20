@@ -442,6 +442,10 @@ Gecikme hesapları (kalan gün, renk) cache'ten gösterilirken cihaz saatine gö
   `displayName`, `shortName`.
 - `packages/ui` kurum renklerinden light/dark paleti türetir (tonal palette) ve **WCAG AA kontrast
   kontrolü** uygular; yetersiz kontrastta rengi otomatik ayarlar.
+- **Güncel karar (D27):** Uygulama çerçevesi (başlık geçişleri, düğmeler, sekmeler) her kurumda MirAkıl
+  kurumsal renkleri ve yazı tipleriyle çizilir — mirakil web sitesinin tasarım sistemiyle aynı (logo mavisi
+  `#0055A4`, geçiş `#0A63B8 → #0055A4 → #0F4A74`, Archivo başlık + Figtree metin). Kurum kimliği logo ve
+  adla verilir. Kurum renkleri altyapıda desteklenmeye devam eder; ileride bir kurum için açılabilir.
 - MirAkıl markası: açılış ekranı, "Powered by MirAkıl" alt bilgisi, Ayarlar > Hakkında.
 - Logolar Gateway üzerinden CDN/Object Storage'dan sunulur; mobil `expo-image` disk cache ile tutar.
 - Uygulama ikonu ve mağaza adı tektir (white-label mağaza uygulaması kapsam dışı).

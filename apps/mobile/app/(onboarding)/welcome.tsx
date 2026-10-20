@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import logoWhite from '../../assets/brand/logo-white.png';
 import { DATA_SOURCE } from '../../src/api';
 import { Hero } from '../../src/components/Hero';
 import { AppText, Button, type IconName } from '../../src/components/ui';
@@ -26,9 +27,12 @@ export default function Welcome() {
   return (
     <Hero rounded={false} style={[styles.screen, { paddingBottom: insets.bottom + spacing.xl }]}>
       <View style={styles.top}>
-        <View style={[styles.logo, { backgroundColor: '#FFFFFF' }]}>
-          <Ionicons name="library" size={44} color={theme.heroEnd} />
-        </View>
+        <Image
+          source={logoWhite}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityLabel="MirAkıl"
+        />
         <AppText variant="display" color={fg}>
           {t('app.name')}
         </AppText>
@@ -71,15 +75,7 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   screen: { flex: 1, justifyContent: 'space-between', paddingHorizontal: spacing.xl },
   top: { gap: spacing.md, marginTop: spacing.xxl },
-  logo: {
-    width: 84,
-    height: 84,
-    borderRadius: radius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
-    boxShadow: '0 10px 24px rgba(0, 0, 0, 0.18)',
-  },
+  logo: { width: 200, height: 44, marginBottom: spacing.lg },
   body: { fontSize: 17, lineHeight: 24, opacity: 0.9 },
   features: { gap: spacing.sm },
   feature: {

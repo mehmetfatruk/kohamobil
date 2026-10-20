@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { ColorValue } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { font } from '../../src/fonts';
 import { useSummary } from '../../src/hooks/useApi';
 import { useSession } from '../../src/state/session';
 import { useTheme } from '../../src/theme';
@@ -35,7 +36,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
-        tabBarLabelStyle: { fontSize: 11, lineHeight: 16, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 11, lineHeight: 16, ...font('600') },
         tabBarItemStyle: { paddingTop: 6, paddingBottom: 4 },
         tabBarBadgeStyle: { backgroundColor: theme.statusDanger, fontSize: 11 },
         tabBarStyle: {

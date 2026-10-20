@@ -13,6 +13,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '0.1.0',
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
+  // MirAkıl işareti (mirakil web sitesi logosu). Mağaza öncesi vektörel kaynaktan yeniden üretilmeli.
+  icon: './assets/brand/icon.png',
+  backgroundColor: '#F4F7FB',
   ios: {
     bundleIdentifier: 'tr.com.mirakil.kutuphane',
     supportsTablet: true,
@@ -20,6 +23,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: 'tr.com.mirakil.kutuphane',
+    adaptiveIcon: {
+      foregroundImage: './assets/brand/adaptive-icon.png',
+      backgroundColor: '#FFFFFF',
+    },
     intentFilters: [
       {
         action: 'VIEW',
@@ -38,7 +45,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       { cameraPermission: 'Kurumunuzun QR kodunu okutmak için kamera erişimi gerekir.' },
     ],
   ],
-  web: { bundler: 'metro', output: 'single' },
+  web: { bundler: 'metro', output: 'single', favicon: './assets/brand/icon.png' },
   experiments: { typedRoutes: true },
   extra: {
     // Herkese açık değer; gizli bilgi değildir. Ortama göre EXPO_PUBLIC_DIRECTORY_URL ile değişir.

@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Image, StyleSheet, useWindowDimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
+import markWhite from '../assets/brand/mark-white.png';
 import { Barcode39 } from '../src/components/Barcode39';
 import { Screen } from '../src/components/Screen';
 import { TenantLogo } from '../src/components/TenantLogo';
@@ -32,7 +33,8 @@ export default function DigitalCard() {
   return (
     <Screen>
       <LinearGradient
-        colors={[theme.heroStart, theme.heroEnd]}
+        colors={[theme.heroStart, theme.heroMid, theme.heroEnd]}
+        locations={[0, 0.45, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.card, { width: cardWidth }]}
@@ -43,7 +45,12 @@ export default function DigitalCard() {
           <AppText variant="subheading" color={theme.onHero} style={styles.flex} numberOfLines={2}>
             {tenant.name}
           </AppText>
-          <Ionicons name="library" size={22} color={theme.onHero} style={styles.dim} />
+          <Image
+            source={markWhite}
+            style={styles.mark}
+            resizeMode="contain"
+            accessibilityLabel="MirAkıl"
+          />
         </View>
         <AppText variant="overline" color={theme.onHero} style={styles.dim}>
           {t('card.title').toLocaleUpperCase('tr')}
@@ -78,6 +85,7 @@ export default function DigitalCard() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   dim: { opacity: 0.85 },
+  mark: { width: 30, height: 25, opacity: 0.9 },
   card: {
     alignSelf: 'center',
     borderRadius: radius.xl,

@@ -13,6 +13,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { font, fontFamily } from '../fonts';
 import { elevation, radius, spacing, useTheme } from '../theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -64,6 +65,10 @@ export function AppText({
   numberOfLines?: number;
 }) {
   const theme = useTheme();
+  // Kalınlık stilden (geçersiz kılınmış olabilir) okunur, aile ona göre seçilir.
+  const flat: TextStyle = StyleSheet.flatten([textStyles[variant], style]);
+  const weight = flat.fontWeight ?? '400';
+  const display = variant === 'display' || variant === 'title' || variant === 'heading';
   return (
     <Text
       numberOfLines={numberOfLines}
@@ -71,6 +76,7 @@ export function AppText({
         textStyles[variant],
         { color: color ?? (muted ? theme.textMuted : theme.text) },
         style,
+        { fontFamily: fontFamily(weight, display) },
       ]}
     >
       {children}
@@ -331,7 +337,7 @@ const textStyles = StyleSheet.create({
   title: { fontSize: 28, lineHeight: 34, fontWeight: '800', letterSpacing: -0.5 },
   heading: { fontSize: 19, lineHeight: 25, fontWeight: '700', letterSpacing: -0.2 },
   subheading: { fontSize: 16, lineHeight: 21, fontWeight: '600' },
-  body: { fontSize: 15, lineHeight: 21 },
+  body: { fontSize: 15, lineHeight: 22 },
   caption: { fontSize: 13, lineHeight: 18 },
   overline: { fontSize: 11, lineHeight: 14, fontWeight: '700', letterSpacing: 0.8 },
 });
@@ -340,7 +346,7 @@ const styles = StyleSheet.create({
   card: { borderRadius: radius.lg, padding: spacing.lg },
   button: {
     minHeight: 50,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     paddingHorizontal: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
@@ -348,7 +354,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   buttonCompact: { minHeight: 38, paddingHorizontal: 14, borderRadius: radius.sm },
-  buttonText: { fontSize: 16, fontWeight: '600' },
+  buttonText: { fontSize: 16, ...font('700') },
   buttonTextCompact: { fontSize: 14 },
   badge: {
     flexDirection: 'row',
@@ -359,7 +365,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     alignSelf: 'flex-start',
   },
-  badgeText: { fontSize: 12, fontWeight: '700' },
+  badgeText: { fontSize: 12, ...font('700') },
   bubble: { alignItems: 'center', justifyContent: 'center' },
   track: { height: 6, borderRadius: 3, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 3 },
@@ -369,7 +375,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  sectionAction: { fontSize: 15, fontWeight: '600' },
+  sectionAction: { fontSize: 15, ...font('700') },
   infoRow: { flexDirection: 'row', paddingVertical: 6, gap: spacing.md },
   infoLabel: { width: 112, paddingTop: 1 },
   infoValue: { flex: 1 },
@@ -380,7 +386,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: spacing.md,
   },
-  listLabel: { flex: 1, fontSize: 16, fontWeight: '500' },
+  listLabel: { flex: 1, fontSize: 16, ...font('500') },
   group: { borderRadius: radius.lg, paddingVertical: 6, overflow: 'hidden' },
   centered: {
     flex: 1,

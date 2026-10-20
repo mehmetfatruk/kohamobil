@@ -36,7 +36,8 @@ export function Hero({
 
   return (
     <LinearGradient
-      colors={[theme.heroStart, theme.heroEnd]}
+      colors={[theme.heroStart, theme.heroMid, theme.heroEnd]}
+      locations={[0, 0.45, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[
