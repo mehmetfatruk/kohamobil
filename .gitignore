@@ -38,3 +38,6 @@ secrets/
 
 # Yerel Redis dökümü
 dump.rdb
+
+# Gateway yerel çalışma dosyaları (secret içerir)
+apps/api/.local/

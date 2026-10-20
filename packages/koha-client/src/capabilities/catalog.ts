@@ -54,6 +54,7 @@ export const SPEC_CAPABILITIES = {
   'rest.items.pickupLocations': { method: 'get', path: '/items/{}/pickup_locations' },
 
   // Katalog
+  'rest.biblios.list': { method: 'get', path: '/biblios' },
   'rest.biblios.get': { method: 'get', path: '/biblios/{}' },
   'rest.biblios.items': { method: 'get', path: '/biblios/{}/items' },
   'rest.items.get': { method: 'get', path: '/items/{}' },

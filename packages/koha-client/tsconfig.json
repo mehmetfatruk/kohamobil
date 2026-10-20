@@ -1,5 +1,5 @@
 {
   "extends": "@mirakil/config/tsconfig/library.json",
   "compilerOptions": { "rootDir": ".", "outDir": "dist", "types": ["node"] },
-  "include": ["src", "scripts", "test"]
+  "include": ["src", "scripts"]
 }

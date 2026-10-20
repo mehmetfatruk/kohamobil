@@ -5,3 +5,8 @@ export * from './capabilities/version.js';
 export * from './compat/features.js';
 export * from './compat/operations.js';
 export * from './compat/resolver.js';
+export * from './http/koha-http.js';
+export * from './rest/adapter.js';
+export * from './rest/dates.js';
+export * from './rest/errors.js';
+export * from './rest/ids.js';

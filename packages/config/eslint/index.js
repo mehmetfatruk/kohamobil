@@ -11,7 +11,9 @@ import tseslint from 'typescript-eslint';
  */
 export function createConfig({ tsconfigRootDir, browser = false, decoratorMetadata = false }) {
   return tseslint.config(
-    { ignores: ['dist/**', 'build/**', 'coverage/**', '.expo/**', '*.config.*'] },
+    {
+      ignores: ['dist/**', 'build/**', 'coverage/**', '.expo/**', '*.config.*', 'scripts/**/*.mjs'],
+    },
     js.configs.recommended,
     ...tseslint.configs.recommendedTypeChecked,
     {
@@ -30,7 +32,17 @@ export function createConfig({ tsconfigRootDir, browser = false, decoratorMetada
     },
     {
       files: ['**/*.test.ts', '**/*.test.tsx'],
-      rules: { '@typescript-eslint/unbound-method': 'off' },
+      rules: {
+        '@typescript-eslint/unbound-method': 'off',
+        // Testler HTTP yanıt gövdelerini serbest biçimde inceler
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
+      },
     },
     prettier,
   );

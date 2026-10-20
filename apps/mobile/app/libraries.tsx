@@ -34,9 +34,11 @@ export default function Libraries() {
         <Card key={library.id} style={styles.card}>
           <AppText variant="heading">{library.name}</AppText>
           {library.address ? <AppText muted>{library.address}</AppText> : null}
-          <Divider />
-          <AppText variant="subheading">{t('libraries.hours')}</AppText>
-          {[1, 2, 3, 4, 5, 6, 0].map((weekday) => {
+          {library.hours.length ? <Divider /> : null}
+          {library.hours.length ? (
+            <AppText variant="subheading">{t('libraries.hours')}</AppText>
+          ) : null}
+          {(library.hours.length ? [1, 2, 3, 4, 5, 6, 0] : []).map((weekday) => {
             const h = library.hours.find((x) => x.weekday === weekday);
             const isToday = weekday === today;
             return (

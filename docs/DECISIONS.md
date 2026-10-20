@@ -29,6 +29,8 @@ Onaylanan ve açık kalan mimari kararlar. Her karar ilgili dokümanda uygulanm�
 | D22 | **Kurum bulma:** liste/arama + kurum kodu + kurumun Koha/OPAC alan adı + kütüphanedeki QR (`https://app.koha-tr.com/k/<kod>`). Girdi yalnızca Tenant Directory'deki kayıtlı kurumu bulur; mobil girilen adrese doğrudan bağlanmaz | ✅ Onaylandı | 2026-10-20 | [DEPLOYMENT.md §4.1](./DEPLOYMENT.md#41-kurum-bulma-yolları-d22) |
 | D23 | **MVP'ye eklendi:** Yeni Gelenler (vitrin + liste) ve materyal türüne göre keşif; Koha tarafında eklenti öncelikli, REST yedekli strateji | ✅ Onaylandı | 2026-10-20 | [KOHA_INTEGRATION.md §4](./KOHA_INTEGRATION.md) |
 | D24 | **Mobil, arka uçla paralel geliştirilir:** ekranlar `MobileApi` arayüzüne yazılır; önce örnek veri (`MockMobileApi`), Gateway hazır oldukça `HttpMobileApi` | ✅ Onaylandı | 2026-10-20 | [MVP_PLAN.md Faz 2](./MVP_PLAN.md) |
+| D25 | **Yerel geliştirme modu:** Gateway, PostgreSQL/Redis olmadan bellek içi oturumlarla çalışabilir (yalnızca `NODE_ENV=development`); kurumlar `tenants.json` dosyasından, secret'lar ayrı dosyalardan. Üretimde PostgreSQL + Redis + https zorunlu | ✅ | 2026-10-20 | [DEVELOPMENT.md](./DEVELOPMENT.md) |
+| D26 | **Katalog arama yedeği:** MirAkıl eklentisi kurulana kadar `GET /biblios?q=` ile başlık/yazar/ISBN alan araması (tam metin ve alaka sıralaması yok) | ✅ | 2026-10-20 | [KOHA_INTEGRATION.md §2](./KOHA_INTEGRATION.md) |
 
 ## Açık konular
 

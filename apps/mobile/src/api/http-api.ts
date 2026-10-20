@@ -27,9 +27,14 @@ import { ApiError, type MobileApi, type SearchParams } from './types';
 export interface HttpApiContext {
   directoryUrl: string;
   /** Seçili kurumun Gateway adresi (Tenant Directory'den gelir). */
-  getApiBaseUrl(): string | null;
-  getAccessToken(): string | null;
-  getLocale(): string;
+  getApiBaseUrl: () => string | null;
+  getAccessToken: () => string | null;
+  getRefreshToken: () => string | null;
+  /** Yenilenen token çiftini saklar. */
+  onTokens: (login: LoginResponse) => Promise<void>;
+  /** Oturum yenilenemedi: yerel oturumu kapatıp girişe yönlendirir. */
+  onSessionExpired: () => Promise<void>;
+  getLocale: () => string;
 }
 
 const randomId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -41,15 +46,36 @@ const randomId = () => `${Date.now().toString(36)}-${Math.random().toString(36).
  */
 export class HttpMobileApi implements MobileApi {
   readonly source = 'http' as const;
+  private refreshing: Promise<boolean> | null = null;
 
   constructor(private readonly ctx: HttpApiContext) {}
+
+  /** Access token süresi dolduğunda tek seferlik (single-flight) yenileme. */
+  private refreshOnce(): Promise<boolean> {
+    this.refreshing ??= (async () => {
+      const refreshToken = this.ctx.getRefreshToken();
+      if (!refreshToken) return false;
+      try {
+        await this.ctx.onTokens(await this.refresh(refreshToken));
+        return true;
+      } catch {
+        await this.ctx.onSessionExpired();
+        return false;
+      }
+    })().finally(() => {
+      this.refreshing = null;
+    });
+    return this.refreshing;
+  }
 
   private async request<T>(
     base: 'directory' | 'api',
     path: string,
-    init: { method?: string; body?: unknown; idempotent?: boolean } = {},
+    init: { method?: string; body?: unknown; idempotent?: boolean; root?: string } = {},
+    retried = false,
   ): Promise<T> {
-    const root = base === 'directory' ? this.ctx.directoryUrl : this.ctx.getApiBaseUrl();
+    const root =
+      init.root ?? (base === 'directory' ? this.ctx.directoryUrl : this.ctx.getApiBaseUrl());
     if (!root) throw new ApiError('TENANT_NOT_FOUND', 400);
     const headers: Record<string, string> = {
       Accept: 'application/json',
@@ -79,6 +105,9 @@ export class HttpMobileApi implements MobileApi {
       message?: string;
       correlationId?: string;
     } | null;
+    if (response.status === 401 && base === 'api' && !path.startsWith('/auth/') && !retried) {
+      if (await this.refreshOnce()) return this.request<T>(base, path, init, true);
+    }
     if (!response.ok) {
       throw new ApiError(
         json?.code ?? 'INTERNAL_ERROR',
@@ -107,7 +136,10 @@ export class HttpMobileApi implements MobileApi {
     }
   }
   getTenantConfig(entry: TenantDirectoryEntry) {
-    return this.request<TenantPublicConfig>('api', `/tenants/${entry.code}/config`);
+    // Kurum henüz seçilmedi: yapılandırma, dizinin bildirdiği Gateway adresinden alınır
+    return this.request<TenantPublicConfig>('api', `/tenants/${entry.code}/config`, {
+      root: entry.apiBaseUrl,
+    });
   }
   login(request: LoginRequest) {
     return this.request<LoginResponse>('api', '/auth/login', {

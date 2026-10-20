@@ -15,16 +15,21 @@
     "start:worker": "node dist/worker.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "setup:local": "node scripts/setup-local.mjs",
+    "dev:local": "tsc -p tsconfig.build.json && node --env-file-if-exists=.env dist/main.js",
+    "koha:check": "tsc -p tsconfig.build.json && node --env-file-if-exists=.env dist/tools/koha-check.js"
   },
   "dependencies": {
     "@mirakil/i18n": "workspace:*",
+    "@mirakil/koha-client": "workspace:*",
     "@mirakil/types": "workspace:*",
     "@nestjs/common": "^12.1.2",
     "@nestjs/core": "^12.1.2",
     "@nestjs/platform-fastify": "^12.1.2",
     "bullmq": "^6.3.11",
     "ioredis": "^6.0.0",
+    "jose": "^6.2.13",
     "nestjs-pino": "^5.3.1",
     "pg": "^8.23.1",
     "pino": "^10.4.0",

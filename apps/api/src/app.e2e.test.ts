@@ -1,3 +1,5 @@
+import { randomBytes } from 'node:crypto';
+
 import { AppConfigSchema, ProblemDetailsSchema } from '@mirakil/types';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
@@ -19,6 +21,7 @@ const config = loadConfig({
   DATABASE_PASSWORD: 'test',
   REDIS_HOST: 'localhost',
   REDIS_PASSWORD: 'test',
+  JWT_SECRET: randomBytes(32).toString('hex'),
 });
 
 let redisHealthy = true;

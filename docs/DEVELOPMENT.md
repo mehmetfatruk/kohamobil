@@ -73,6 +73,46 @@ pnpm dev
 - Giriş: kullanıcı adı `demo` (veya kart no `20231234`), şifre `demo`.
 - Gerçek Gateway'e bağlamak için: `EXPO_PUBLIC_DATA_SOURCE=http`.
 
+## Uygulamayı canlı Koha'ya bağlamak (yerel Gateway)
+
+Telefon Koha'ya doğrudan bağlanmaz: bilgisayarınızda çalışan Gateway üzerinden bağlanır.
+
+```
+Telefon (Expo Go)  →  Gateway (bilgisayarınız, :3000)  →  Koha (ör. koha-tr.com)
+```
+
+**Koha tarafında (bir kez):**
+1. Sistem tercihi `RESTOAuth2ClientCredentials` → **Enable**
+2. Personel arayüzünde uygulama için bir servis hesabı (personel patron) açın, yetkilerini verin
+   ([KOHA_INTEGRATION.md §1.1](./KOHA_INTEGRATION.md)) ve bu hesap için **API key** üretin (client id + secret).
+3. Deneme için bir test okuyucu hesabı (ödünç ve rezervasyonu olan).
+
+**Bilgisayarda (proje kök klasöründe):**
+
+```bat
+git pull
+pnpm install
+pnpm build
+pnpm local:setup      &rem client id ve secret'ı sorar; secret yalnızca apps\api\.local\ altına yazılır
+pnpm local:check      &rem Koha'ya yalnızca OKUMA yapan kontrol; test okuyucu bilgisi isteğe bağlı
+pnpm local:api        &rem Gateway'i başlatır (bu pencere açık kalsın)
+```
+
+Ayrı bir pencerede:
+
+```bat
+cd apps\mobile
+pnpm dev
+```
+
+- `local:setup` bilgisayarın yerel ağ adresini bulur ve mobil uygulamayı bu Gateway'e yönlendirir
+  (`apps/mobile/.env.local`). Örnek veriye dönmek için: `pnpm local:setup -- --mock`
+- Kurumlar `apps/api/.local/tenants.json` dosyasındadır (`apps/api/tenants.example.json`'dan kopyalanır).
+  Bir kurumu açmak için `"active": true` yapın ve `pnpm local:setup`'ı tekrar çalıştırın.
+- Windows Güvenlik Duvarı Node.js için izin sorarsa **İzin ver** deyin (telefonun 3000 portuna erişmesi için).
+- Bu yerel modda oturumlar bellekte tutulur; Gateway yeniden başlarsa tekrar giriş yapılır.
+  Kalıcı oturumlar (PostgreSQL + Redis) Faz 1'in devamında.
+
 ## Günlük komutlar
 
 ```sh

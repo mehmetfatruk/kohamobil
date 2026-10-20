@@ -16,7 +16,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "secrets:scan": "gitleaks git --redact --verbose",
-    "prepare": "lefthook install || true"
+    "prepare": "lefthook install || true",
+    "local:setup": "pnpm --filter @mirakil/api setup:local",
+    "local:check": "pnpm --filter @mirakil/api koha:check",
+    "local:api": "pnpm --filter @mirakil/api dev:local"
   },
   "devDependencies": {
     "lefthook": "^2.1.17",

@@ -4,7 +4,7 @@ import {
   modernSpecWithPlugin,
   olderSpecWithoutPlugin,
   specWithoutPasswordValidation,
-} from '../../test/fixtures/specs.js';
+} from '../testing/specs.js';
 import type { CapabilityId } from '../capabilities/catalog.js';
 import { detectSpecCapabilities } from '../capabilities/openapi.js';
 import { effectiveFeatures } from './features.js';

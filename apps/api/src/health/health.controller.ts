@@ -37,9 +37,11 @@ export class HealthController {
       withTimeout(this.postgres.ping(), 2_000),
       withTimeout(this.redis.ping(), 2_000),
     ]);
+    const state = (enabled: boolean | undefined, check: PromiseSettledResult<void>) =>
+      enabled === false ? 'disabled' : check.status === 'fulfilled' ? 'ok' : 'down';
     const result = {
-      postgres: checks[0].status === 'fulfilled' ? 'ok' : 'down',
-      redis: checks[1].status === 'fulfilled' ? 'ok' : 'down',
+      postgres: state(this.postgres.enabled, checks[0]),
+      redis: state(this.redis.enabled, checks[1]),
     };
     if (Object.values(result).includes('down')) {
       throw new ServiceUnavailableException(result);

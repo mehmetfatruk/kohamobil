@@ -4,7 +4,7 @@ import {
   modernSpecWithPlugin,
   olderSpecWithoutPlugin,
   specWithoutPasswordValidation,
-} from '../../test/fixtures/specs.js';
+} from '../testing/specs.js';
 import { detectSpecCapabilities, normalizePath } from './openapi.js';
 
 describe('normalizePath', () => {

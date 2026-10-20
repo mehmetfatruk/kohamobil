@@ -26,6 +26,7 @@ export class SystemQueueService implements OnApplicationBootstrap, OnApplication
   private worker?: Worker;
 
   constructor(@Inject(APP_CONFIG) config: AppConfig) {
+    if (!config.REDIS_HOST) throw new Error('Worker için REDIS_HOST zorunludur');
     this.connection = new Redis({ ...redisOptions(config), lazyConnect: false });
   }
 

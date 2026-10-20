@@ -149,6 +149,11 @@ export const OPERATIONS = {
       requires: ['plugin.search'],
       description: 'Koha::SearchEngine (Zebra/Elasticsearch)',
     },
+    {
+      id: 'rest.biblios.query',
+      requires: ['rest.biblios.list'],
+      description: 'Yedek: GET /biblios?q= ile başlık/yazar/ISBN alan araması (tam metin değil)',
+    },
   ]),
   'catalog.record': op('mvp', [
     {

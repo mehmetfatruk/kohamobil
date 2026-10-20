@@ -6,6 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { errorMessage, resolveLocale } from '@mirakil/i18n';
+import { KohaOperationError } from '@mirakil/koha-client';
 import type { ErrorCode, ProblemDetails } from '@mirakil/types';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -44,13 +45,19 @@ export class ProblemDetailsFilter implements ExceptionFilter {
 
     if (exception instanceof DomainError) {
       ({ status, code, details } = exception);
+    } else if (exception instanceof KohaOperationError) {
+      ({ status, code } = exception);
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       code = codeForStatus(status);
     }
 
+    const cause = exception instanceof Error ? exception.cause : undefined;
     if (status >= 500) {
-      this.logger.error({ err: exception, correlationId: request.id }, 'İşlenmeyen hata');
+      this.logger.error({ err: exception, cause, correlationId: request.id }, 'İşlenmeyen hata');
+    } else if (cause) {
+      // Koha'nın ham yanıtı yalnızca logda (docs/ARCHITECTURE.md §7)
+      this.logger.warn({ code, cause, correlationId: request.id }, 'Koha işlemi reddedildi');
     }
 
     const locale = resolveLocale(request.headers['accept-language']);

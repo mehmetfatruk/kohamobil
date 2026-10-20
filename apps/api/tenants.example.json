@@ -1,0 +1,64 @@
+{
+  "tenants": [
+    {
+      "code": "koha-tr-demo",
+      "name": "Koha-TR Demo Kütüphanesi",
+      "shortName": "Koha-TR Demo",
+      "domains": ["koha-tr.com"],
+      "active": true,
+      "koha": {
+        "baseUrl": "https://koha-tr.com",
+        "opacUrl": "https://koha-tr.com",
+        "auth": {
+          "kind": "oauth2",
+          "clientId": "CHANGE_ME",
+          "clientSecretFile": "koha-tr-demo.secret"
+        }
+      }
+    },
+    {
+      "code": "sinop-uni",
+      "name": "Sinop Üniversitesi Kütüphanesi",
+      "city": "Sinop",
+      "domains": ["katalog.sinop.edu.tr"],
+      "active": false,
+      "koha": {
+        "baseUrl": "https://katalog.sinop.edu.tr",
+        "opacUrl": "https://katalog.sinop.edu.tr",
+        "auth": {
+          "kind": "oauth2",
+          "clientId": "CHANGE_ME",
+          "clientSecretFile": "sinop-uni.secret"
+        }
+      }
+    },
+    {
+      "code": "bilecik-uni",
+      "name": "Bilecik Şeyh Edebali Üniversitesi Kütüphanesi",
+      "city": "Bilecik",
+      "domains": ["katalog.bilecik.edu.tr"],
+      "active": false,
+      "koha": {
+        "baseUrl": "https://katalog.bilecik.edu.tr",
+        "opacUrl": "https://katalog.bilecik.edu.tr",
+        "auth": {
+          "kind": "oauth2",
+          "clientId": "CHANGE_ME",
+          "clientSecretFile": "bilecik-uni.secret"
+        }
+      }
+    },
+    {
+      "code": "ieu",
+      "name": "İzmir Ekonomi Üniversitesi Kütüphanesi",
+      "city": "İzmir",
+      "domains": ["e-library.izmirekonomi.edu.tr"],
+      "active": false,
+      "koha": {
+        "baseUrl": "https://e-library.izmirekonomi.edu.tr",
+        "opacUrl": "https://e-library.izmirekonomi.edu.tr",
+        "auth": { "kind": "oauth2", "clientId": "CHANGE_ME", "clientSecretFile": "ieu.secret" }
+      }
+    }
+  ]
+}

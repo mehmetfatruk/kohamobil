@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ConfigError, loadConfig } from './env.js';
 
 const base = {
+  JWT_SECRET_FILE: '/run/secrets/jwt',
   NODE_ENV: 'development',
   PUBLIC_API_URL: 'https://api.koha-tr.com',
   DATABASE_HOST: 'localhost',
@@ -14,6 +15,7 @@ const base = {
 const files: Record<string, string> = {
   '/run/secrets/db': 'db-secret-value-1234567890\n',
   '/run/secrets/redis': 'redis-secret-value-1234567890',
+  '/run/secrets/jwt': 'jwt-secret-value-0123456789abcdef0123456789',
   '/run/secrets/placeholder': 'CHANGE_ME',
 };
 const readFile = (path: string) => {
@@ -22,7 +24,7 @@ const readFile = (path: string) => {
   return content;
 };
 
-const problemsOf = (env: Record<string, string>) => {
+const problemsOf = (env: Record<string, string | undefined>) => {
   try {
     loadConfig(env, readFile);
     return [];
@@ -86,13 +88,14 @@ describe('loadConfig', () => {
     expect(problems.join('\n')).not.toContain('super-secret-redis-value');
   });
 
-  it('https olmayan genel API adresini reddeder', () => {
+  it("kısa JWT secret'ını reddeder", () => {
     const problems = problemsOf({
       ...base,
-      PUBLIC_API_URL: 'http://api.koha-tr.com',
+      JWT_SECRET_FILE: undefined,
+      JWT_SECRET: 'kisa',
       DATABASE_PASSWORD: 'x',
       REDIS_PASSWORD: 'x',
     });
-    expect(problems.some((p) => p.startsWith('PUBLIC_API_URL'))).toBe(true);
+    expect(problems.some((p) => p.startsWith('JWT_SECRET'))).toBe(true);
   });
 });

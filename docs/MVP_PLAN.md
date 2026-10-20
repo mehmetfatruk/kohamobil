@@ -63,6 +63,12 @@ hatırlatma push bildirimi alması.
 
 ### Faz 1 — Backend Çekirdeği (3–4 hafta)
 
+> **Durum (yerel geliştirme dilimi tamam):** Gateway, demo Koha'ya (koha-tr.com) bağlanacak şekilde uçtan uca
+> çalışıyor: kurum dizini (kod/alan adı ile bulma), KOHA girişi, access + refresh token rotasyonu (yeniden
+> kullanımda oturum iptali), profil/özet, ödünç (yenilenebilirlik + yenileme), rezervasyon (listele/oluştur/iptal,
+> teslim şubeleri), borç, katalog (yedek arama, kayıt, nüsha, Yeni Gelenler, türler), kütüphaneler.
+> Oturumlar şimdilik bellekte; PostgreSQL/Redis kalıcılığı, RLS ve admin paneli Faz 1'in devamında.
+
 - [ ] Prisma şeması + RLS migration'ları, seed
 - [ ] `RequestContext` (AsyncLocalStorage), Sentry/GlitchTip — correlation ID, Problem Details filtresi ve pino redact Faz 0'da eklendi
 - [ ] Envelope encryption servisi + `KeyProvider` (dosya; OpenBao implementasyonu)
