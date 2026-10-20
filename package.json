@@ -19,7 +19,8 @@
     "prepare": "lefthook install || true",
     "local:setup": "pnpm --filter @mirakil/api setup:local",
     "local:check": "pnpm --filter @mirakil/api koha:check",
-    "local:api": "pnpm --filter @mirakil/api dev:local"
+    "local:api": "pnpm --filter @mirakil/api dev:local",
+    "live": "node scripts/live.mjs"
   },
   "devDependencies": {
     "lefthook": "^2.1.17",

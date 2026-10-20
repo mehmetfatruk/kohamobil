@@ -87,7 +87,18 @@ Telefon (Expo Go)  →  Gateway (bilgisayarınız, :3000)  →  Koha (ör. koha-
    ([KOHA_INTEGRATION.md §1.1](./KOHA_INTEGRATION.md)) ve bu hesap için **API key** üretin (client id + secret).
 3. Deneme için bir test okuyucu hesabı (ödünç ve rezervasyonu olan).
 
-**Bilgisayarda (proje kök klasöründe):**
+**Bilgisayarda — tek komut:**
+
+```bat
+git pull
+pnpm install
+pnpm live
+```
+
+`pnpm live` ilk seferde Koha API anahtarını sorar, Koha bağlantısını kontrol eder, Gateway'i arka planda
+ve mobil uygulamayı (Expo) başlatır. Terminaldeki QR'ı telefonda okutun.
+
+**Aynı adımlar tek tek (sorun ararken):**
 
 ```bat
 git pull

@@ -4,7 +4,7 @@
 
 | Kurum | Sürüm | Destek seviyesi | Eksik | Not |
 |---|---|---|---|---|
-| Koha-TR Demo (koha-tr.com) | bilinmiyor (OPAC sürüm bilgisi gizli) | LIMITED → **FULL** (yedek arama ile) | `catalog.search` (tam metin) | `identifier`'lı şifre doğrulama, çoğul `renewals`, teslim şubeleri, okuma geçmişi, hesap hareketleri mevcut. Tam metin arama için MirAkıl eklentisi gerekir; o zamana kadar `rest.biblios.query` (başlık/yazar/ISBN) kullanılır |
+| Koha-TR (koha-tr.com) | bilinmiyor (OPAC sürüm bilgisi gizli) | LIMITED → **FULL** (yedek arama ile) | `catalog.search` (tam metin) | `identifier`'lı şifre doğrulama, çoğul `renewals`, teslim şubeleri, okuma geçmişi, hesap hareketleri mevcut. Tam metin arama için MirAkıl eklentisi gerekir; o zamana kadar `rest.biblios.query` (başlık/yazar/ISBN) kullanılır |
 
 ## Sürüm matrisi
 

@@ -130,14 +130,20 @@ if (first) {
   );
 }
 
-const prompt = createPrompt();
-const identifier = await prompt.ask(
-  '\nTest okuyucu kullanıcı adı / kart no (atlamak için Enter): ',
-);
-const password = identifier
-  ? await prompt.ask('Şifre (ekranda görünmez; yalnızca test hesabı kullanın): ', { hidden: true })
-  : '';
-prompt.close();
+// --quick: okuyucu adımlarını atla (pnpm live açılışta kullanır)
+const quick = process.argv.includes('--quick');
+let identifier = '';
+let password = '';
+if (!quick) {
+  const prompt = createPrompt();
+  identifier = await prompt.ask('\nTest okuyucu kullanıcı adı / kart no (atlamak için Enter): ');
+  if (identifier) {
+    password = await prompt.ask('Şifre (ekranda görünmez; yalnızca test hesabı kullanın): ', {
+      hidden: true,
+    });
+  }
+  prompt.close();
+}
 
 if (identifier && password) {
   const identity = await step(

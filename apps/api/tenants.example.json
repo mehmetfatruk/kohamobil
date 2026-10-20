@@ -1,9 +1,9 @@
 {
   "tenants": [
     {
-      "code": "koha-tr-demo",
-      "name": "Koha-TR Demo Kütüphanesi",
-      "shortName": "Koha-TR Demo",
+      "code": "koha-tr",
+      "name": "Koha-TR Kütüphanesi",
+      "shortName": "Koha-TR",
       "domains": ["koha-tr.com"],
       "active": true,
       "koha": {
@@ -12,7 +12,7 @@
         "auth": {
           "kind": "oauth2",
           "clientId": "CHANGE_ME",
-          "clientSecretFile": "koha-tr-demo.secret"
+          "clientSecretFile": "koha-tr.secret"
         }
       }
     },
@@ -57,7 +57,11 @@
       "koha": {
         "baseUrl": "https://e-library.izmirekonomi.edu.tr",
         "opacUrl": "https://e-library.izmirekonomi.edu.tr",
-        "auth": { "kind": "oauth2", "clientId": "CHANGE_ME", "clientSecretFile": "ieu.secret" }
+        "auth": {
+          "kind": "oauth2",
+          "clientId": "CHANGE_ME",
+          "clientSecretFile": "ieu.secret"
+        }
       }
     }
   ]
