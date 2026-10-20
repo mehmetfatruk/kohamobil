@@ -12,12 +12,13 @@ import {
   Button,
   Card,
   ErrorView,
+  IconBubble,
   LoadingView,
   MessageView,
 } from '../../src/components/ui';
 import { useTenantSelection } from '../../src/hooks/useTenantSelection';
 import { errorText } from '../../src/lib/errors';
-import { radius, spacing, useTheme } from '../../src/theme';
+import { elevation, radius, spacing, useTheme } from '../../src/theme';
 
 export default function SelectTenant() {
   const { t } = useTranslation();
@@ -31,10 +32,7 @@ export default function SelectTenant() {
     queryFn: () => api.listTenants(term || undefined),
   });
 
-  const inputStyle = [
-    styles.input,
-    { borderColor: theme.border, color: theme.text, backgroundColor: theme.surface },
-  ];
+  const inputStyle = [styles.input, { color: theme.text, backgroundColor: theme.surfaceAlt }];
 
   return (
     <View style={[styles.flex, { backgroundColor: theme.background }]}>
@@ -46,7 +44,12 @@ export default function SelectTenant() {
         ListHeaderComponent={
           <View style={styles.header}>
             <Card style={styles.codeCard}>
-              <AppText variant="subheading">{t('onboarding.enterCode')}</AppText>
+              <View style={styles.codeTitle}>
+                <IconBubble icon="key" size={36} />
+                <AppText variant="subheading" style={styles.flex}>
+                  {t('onboarding.enterCode')}
+                </AppText>
+              </View>
               <View style={styles.codeRow}>
                 <TextInput
                   value={code}
@@ -76,15 +79,14 @@ export default function SelectTenant() {
                 onPress={() => router.push('/scan')}
               />
             </Card>
-            <AppText muted style={styles.or}>
-              {t('onboarding.or')}
-            </AppText>
-            <View
-              style={[
-                styles.searchBox,
-                { borderColor: theme.border, backgroundColor: theme.surface },
-              ]}
-            >
+            <View style={styles.orRow}>
+              <View style={[styles.line, { backgroundColor: theme.border }]} />
+              <AppText variant="caption" muted>
+                {t('onboarding.or')}
+              </AppText>
+              <View style={[styles.line, { backgroundColor: theme.border }]} />
+            </View>
+            <View style={[styles.searchBox, { backgroundColor: theme.surface }, elevation(theme)]}>
               <Ionicons name="search" size={18} color={theme.textMuted} />
               <TextInput
                 value={search}
@@ -113,11 +115,8 @@ export default function SelectTenant() {
             onPress={() => void choose(item)}
             style={({ pressed }) => [
               styles.tenant,
-              {
-                borderColor: theme.border,
-                backgroundColor: theme.surface,
-                opacity: pressed ? 0.8 : 1,
-              },
+              { backgroundColor: theme.surface, opacity: pressed ? 0.85 : 1 },
+              elevation(theme),
             ]}
           >
             <TenantLogo tenant={item} />
@@ -129,7 +128,9 @@ export default function SelectTenant() {
                 </AppText>
               ) : null}
             </View>
-            <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+            <View style={[styles.chevron, { backgroundColor: theme.surfaceAlt }]}>
+              <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
+            </View>
           </Pressable>
         )}
       />
@@ -143,29 +144,36 @@ const styles = StyleSheet.create({
   header: { gap: spacing.md, marginBottom: spacing.sm },
   codeCard: { gap: spacing.md },
   codeRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+  codeTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   input: {
-    borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
-    minHeight: 44,
+    minHeight: 46,
     fontSize: 15,
   },
-  or: { textAlign: 'center' },
+  orRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  line: { flex: 1, height: StyleSheet.hairlineWidth },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    borderWidth: 1,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
-  searchInput: { flex: 1, minHeight: 44, fontSize: 15 },
+  searchInput: { flex: 1, minHeight: 50, fontSize: 15 },
   tenant: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.lg,
+    marginBottom: 2,
+  },
+  chevron: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

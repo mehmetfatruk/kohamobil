@@ -10,7 +10,7 @@ import { OfflineBanner } from '../../src/components/feedback';
 import { AppText, Button, ErrorView, LoadingView, MessageView } from '../../src/components/ui';
 import { useCatalogList, type CatalogQuery } from '../../src/hooks/useApi';
 import { errorText } from '../../src/lib/errors';
-import { radius, spacing, useTheme } from '../../src/theme';
+import { elevation, radius, spacing, useTheme } from '../../src/theme';
 
 const FIELD_KEYS: Record<SearchField, string> = {
   any: 'catalog.fieldAny',
@@ -45,9 +45,8 @@ export default function Catalog() {
     >
       <OfflineBanner />
       <View style={styles.searchArea}>
-        <View
-          style={[styles.searchBox, { borderColor: theme.border, backgroundColor: theme.surface }]}
-        >
+        <AppText variant="title">{t('tabs.catalog')}</AppText>
+        <View style={[styles.searchBox, { backgroundColor: theme.surface }, elevation(theme)]}>
           <Ionicons name="search" size={20} color={theme.textMuted} />
           <TextInput
             value={text}
@@ -93,13 +92,13 @@ export default function Catalog() {
                   styles.chip,
                   {
                     borderColor: active ? theme.primary : theme.border,
-                    backgroundColor: active ? theme.primary : theme.surface,
+                    backgroundColor: active ? theme.primarySoft : theme.surface,
                   },
                 ]}
               >
                 <AppText
                   variant="caption"
-                  color={active ? theme.onPrimary : theme.text}
+                  color={active ? theme.primary : theme.textMuted}
                   style={styles.chipText}
                 >
                   {t(FIELD_KEYS[item])}
@@ -153,17 +152,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    borderWidth: 1,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
-  searchInput: { flex: 1, minHeight: 48, fontSize: 16 },
+  searchInput: { flex: 1, minHeight: 50, fontSize: 16 },
   chips: { gap: spacing.sm },
   chip: {
     borderWidth: 1,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
   },
   chipText: { fontWeight: '600' },
   list: { padding: spacing.lg, paddingTop: spacing.sm, gap: spacing.md },

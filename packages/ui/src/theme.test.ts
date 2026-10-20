@@ -36,3 +36,16 @@ describe('createTheme', () => {
     },
   );
 });
+
+describe('başlık geçişi', () => {
+  it.each(['#1A73E8', '#8B1E3F', '#F2B705', '#FFFFFF', '#000000'])(
+    '%s kurum renginde başlık metni iki uçta da okunur',
+    (primaryColor) => {
+      for (const scheme of ['light', 'dark'] as const) {
+        const theme = createTheme(scheme, { primaryColor });
+        expect(contrastRatio(theme.onHero, theme.heroStart)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(theme.onHero, theme.heroEnd)).toBeGreaterThanOrEqual(3);
+      }
+    },
+  );
+});

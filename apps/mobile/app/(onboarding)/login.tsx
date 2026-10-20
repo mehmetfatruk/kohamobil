@@ -10,7 +10,10 @@ import {
   View,
 } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { api, DATA_SOURCE } from '../../src/api';
+import { Hero } from '../../src/components/Hero';
 import { TenantLogo } from '../../src/components/TenantLogo';
 import { toast } from '../../src/components/feedback';
 import { AppText, Button, Card } from '../../src/components/ui';
@@ -18,12 +21,13 @@ import { useOnline } from '../../src/hooks/useOnline';
 import { errorText } from '../../src/lib/errors';
 import { queryClient } from '../../src/lib/query-client';
 import { useSession } from '../../src/state/session';
-import { radius, spacing, useTheme } from '../../src/theme';
+import { elevation, radius, spacing, useTheme } from '../../src/theme';
 
 export default function Login() {
   const { t } = useTranslation();
   const theme = useTheme();
   const online = useOnline();
+  const insets = useSafeAreaInsets();
   const { tenant, signIn, forgetTenant } = useSession();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -68,7 +72,7 @@ export default function Login() {
 
   const inputStyle = [
     styles.input,
-    { borderColor: theme.border, color: theme.text, backgroundColor: theme.surface },
+    { borderColor: theme.border, color: theme.text, backgroundColor: theme.surfaceAlt },
   ];
 
   return (
@@ -77,15 +81,22 @@ export default function Login() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.tenant}>
-          <TenantLogo tenant={tenant} size={72} />
-          <AppText variant="heading" style={styles.center}>
-            {tenant.name}
-          </AppText>
-        </View>
+        <Hero style={[styles.hero, { paddingTop: insets.top + 56 }]}>
+          <View style={styles.tenant}>
+            <View style={styles.logoRing}>
+              <TenantLogo tenant={tenant} size={64} color="#FFFFFF" textColor={theme.heroEnd} />
+            </View>
+            <AppText variant="heading" color={theme.onHero} style={styles.center}>
+              {tenant.name}
+            </AppText>
+            <AppText color={theme.onHero} style={[styles.center, styles.dim]}>
+              {t('auth.subtitle')}
+            </AppText>
+          </View>
+        </Hero>
 
-        <Card style={styles.form}>
-          <AppText variant="caption" muted>
+        <Card style={[styles.form, elevation(theme, 2)]}>
+          <AppText variant="caption" muted style={styles.label}>
             {t('auth.identifier')}
           </AppText>
           <TextInput
@@ -99,7 +110,7 @@ export default function Login() {
             style={inputStyle}
             accessibilityLabel={t('auth.identifier')}
           />
-          <AppText variant="caption" muted>
+          <AppText variant="caption" muted style={styles.label}>
             {t('auth.password')}
           </AppText>
           <TextInput
@@ -132,7 +143,7 @@ export default function Login() {
           ) : null}
         </Card>
 
-        <AppText variant="caption" muted style={styles.center}>
+        <AppText variant="caption" muted style={[styles.center, styles.padded]}>
           {t('auth.forgot')}
         </AppText>
         <Button
@@ -148,10 +159,20 @@ export default function Login() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.lg },
-  tenant: { alignItems: 'center', gap: spacing.md, marginTop: spacing.lg },
+  content: { gap: spacing.lg, paddingBottom: spacing.xxl },
+  hero: { paddingBottom: spacing.xxl + spacing.xl },
+  tenant: { alignItems: 'center', gap: spacing.sm },
+  logoRing: {
+    padding: 6,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    marginBottom: spacing.sm,
+  },
   center: { textAlign: 'center' },
-  form: { gap: spacing.sm },
+  dim: { opacity: 0.85 },
+  padded: { paddingHorizontal: spacing.lg },
+  label: { fontWeight: '600' },
+  form: { gap: spacing.sm, marginHorizontal: spacing.lg, marginTop: -(spacing.xxl + spacing.md) },
   input: {
     borderWidth: 1,
     borderRadius: radius.md,

@@ -16,10 +16,12 @@ export function TenantLogo({
   tenant,
   size = 44,
   color,
+  textColor = '#FFFFFF',
 }: {
   tenant: Pick<TenantDirectoryEntry, 'name' | 'logoUrl'>;
   size?: number;
   color?: string;
+  textColor?: string;
 }) {
   const theme = useTheme();
   if (tenant.logoUrl) {
@@ -38,12 +40,14 @@ export function TenantLogo({
         { width: size, height: size, borderRadius: size / 4, backgroundColor: bg },
       ]}
     >
-      <Text style={[styles.text, { fontSize: size * 0.38 }]}>{initials(tenant.name)}</Text>
+      <Text style={[styles.text, { fontSize: size * 0.38, color: textColor }]}>
+        {initials(tenant.name)}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   box: { alignItems: 'center', justifyContent: 'center' },
-  text: { color: '#FFFFFF', fontWeight: '800' },
+  text: { fontWeight: '800', letterSpacing: -0.5 },
 });

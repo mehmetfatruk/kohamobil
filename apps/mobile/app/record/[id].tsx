@@ -7,6 +7,7 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Cover } from '../../src/components/Cover';
+import { Hero } from '../../src/components/Hero';
 import { Screen } from '../../src/components/Screen';
 import { toast } from '../../src/components/feedback';
 import {
@@ -29,7 +30,7 @@ import { useOnline } from '../../src/hooks/useOnline';
 import { errorText } from '../../src/lib/errors';
 import { formatDate } from '../../src/lib/format';
 import { useSession } from '../../src/state/session';
-import { radius, spacing, useTheme } from '../../src/theme';
+import { elevation, radius, spacing, useTheme } from '../../src/theme';
 
 function ItemRow({ item }: { item: CatalogItem }) {
   const { t } = useTranslation();
@@ -106,6 +107,7 @@ function HoldSheet({
           { backgroundColor: theme.background, paddingBottom: insets.bottom + spacing.lg },
         ]}
       >
+        <View style={[styles.grabber, { backgroundColor: theme.border }]} />
         <AppText variant="heading">{t('record.chooseLibrary')}</AppText>
         {libraries.isPending ? (
           <LoadingView />
@@ -127,7 +129,7 @@ function HoldSheet({
                   styles.option,
                   {
                     borderColor: active ? theme.primary : theme.border,
-                    backgroundColor: theme.surface,
+                    backgroundColor: active ? theme.primarySoft : theme.surface,
                   },
                 ]}
               >
@@ -163,6 +165,8 @@ function HoldSheet({
 
 export default function RecordScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const online = useOnline();
   const holdsEnabled = useSession((s) => s.tenant?.features.holds ?? false);
@@ -174,48 +178,139 @@ export default function RecordScreen() {
   if (record.isError)
     return <ErrorView message={errorText(record.error)} onRetry={() => void record.refetch()} />;
   const r = record.data;
+  const total = items.data?.length ?? 0;
+  const available = items.data?.filter((item) => item.status === 'AVAILABLE').length ?? 0;
+  const glass = theme.onHero === '#FFFFFF' ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.08)';
+
+  const hero = (
+    <Hero style={[styles.hero, { paddingTop: insets.top + 56 }]}>
+      <View style={styles.heroBody}>
+        <View style={styles.coverFrame}>
+          <Cover id={r.id} title={r.title} author={r.author} uri={r.coverUrl} width={150} />
+        </View>
+        <AppText variant="title" color={theme.onHero} style={styles.center}>
+          {r.title}
+        </AppText>
+        {r.subtitle ? (
+          <AppText color={theme.onHero} style={[styles.center, styles.dim]}>
+            {r.subtitle}
+          </AppText>
+        ) : null}
+        {r.author ? (
+          <AppText variant="subheading" color={theme.onHero} style={[styles.center, styles.dim]}>
+            {r.author}
+          </AppText>
+        ) : null}
+        <View style={styles.chips}>
+          {r.materialType ? (
+            <View style={[styles.chip, { backgroundColor: glass }]}>
+              <Ionicons name="pricetag" size={13} color={theme.onHero} />
+              <AppText variant="caption" color={theme.onHero} style={styles.bold}>
+                {r.materialType.name}
+              </AppText>
+            </View>
+          ) : null}
+          {r.publicationYear ? (
+            <View style={[styles.chip, { backgroundColor: glass }]}>
+              <Ionicons name="calendar" size={13} color={theme.onHero} />
+              <AppText variant="caption" color={theme.onHero} style={styles.bold}>
+                {r.publicationYear}
+              </AppText>
+            </View>
+          ) : null}
+          {total > 0 ? (
+            <View style={[styles.chip, { backgroundColor: '#FFFFFF' }]}>
+              <Ionicons
+                name={available > 0 ? 'checkmark-circle' : 'close-circle'}
+                size={13}
+                color={available > 0 ? '#15803D' : '#B91C1C'}
+              />
+              <AppText
+                variant="caption"
+                color={available > 0 ? '#15803D' : '#B91C1C'}
+                style={styles.bold}
+              >
+                {available > 0
+                  ? t('catalog.available', { available, total })
+                  : t('catalog.noneAvailable')}
+              </AppText>
+            </View>
+          ) : null}
+        </View>
+      </View>
+    </Hero>
+  );
 
   return (
     <>
-      <Screen>
-        <View style={styles.hero}>
-          <Cover id={r.id} title={r.title} author={r.author} uri={r.coverUrl} width={140} />
-          <AppText variant="heading" style={styles.center}>
-            {r.title}
-          </AppText>
-          {r.subtitle ? (
-            <AppText muted style={styles.center}>
-              {r.subtitle}
-            </AppText>
-          ) : null}
-        </View>
-
-        <Card>
-          <InfoRow label={t('record.author')} value={r.authors.join('; ')} />
-          <InfoRow label={t('record.materialType')} value={r.materialType?.name} />
-          <InfoRow label={t('record.publisher')} value={r.publisher} />
-          <InfoRow label={t('record.place')} value={r.publicationPlace} />
-          <InfoRow label={t('record.year')} value={r.publicationYear} />
-          <InfoRow label={t('record.edition')} value={r.edition} />
-          <InfoRow label={t('record.pages')} value={r.pages} />
-          <InfoRow label={t('record.isbn')} value={r.isbn.join(', ')} />
-          <InfoRow label={t('record.issn')} value={r.issn.join(', ')} />
-          <InfoRow label={t('record.language')} value={r.language} />
-          <InfoRow label={t('record.callNumber')} value={r.callNumber} />
-          <InfoRow label={t('record.subjects')} value={r.subjects.join(' · ')} />
-          <InfoRow label={t('record.series')} value={r.series} />
-        </Card>
+      <Screen hero={hero}>
+        {holdsEnabled ? (
+          <Card style={[styles.action, elevation(theme, 2)]}>
+            {r.holdable ? (
+              <>
+                <Button
+                  label={t('record.placeHold')}
+                  icon="bookmark"
+                  disabled={!online}
+                  onPress={() => setSheet(true)}
+                />
+                {!online ? (
+                  <AppText variant="caption" muted style={styles.center}>
+                    {t('common.offlineActionDisabled')}
+                  </AppText>
+                ) : null}
+              </>
+            ) : (
+              <View style={styles.notHoldable}>
+                <Ionicons name="information-circle" size={20} color={theme.textMuted} />
+                <AppText muted style={styles.flex}>
+                  {t('record.holdNotAvailable')}
+                </AppText>
+              </View>
+            )}
+          </Card>
+        ) : null}
 
         {r.summary ? (
-          <Card>
-            <AppText variant="subheading">{t('record.summary')}</AppText>
+          <Card style={styles.section}>
+            <AppText variant="heading">{t('record.summary')}</AppText>
             <AppText muted>{r.summary}</AppText>
           </Card>
         ) : null}
 
+        <Card style={styles.section}>
+          <AppText variant="heading">{t('record.details')}</AppText>
+          <View>
+            <InfoRow label={t('record.author')} value={r.authors.join('; ')} />
+            <InfoRow label={t('record.publisher')} value={r.publisher} />
+            <InfoRow label={t('record.place')} value={r.publicationPlace} />
+            <InfoRow label={t('record.edition')} value={r.edition} />
+            <InfoRow label={t('record.pages')} value={r.pages} />
+            <InfoRow label={t('record.isbn')} value={r.isbn.join(', ')} />
+            <InfoRow label={t('record.issn')} value={r.issn.join(', ')} />
+            <InfoRow label={t('record.language')} value={r.language} />
+            <InfoRow label={t('record.callNumber')} value={r.callNumber} />
+            <InfoRow label={t('record.series')} value={r.series} />
+          </View>
+          {r.subjects.length ? (
+            <View style={styles.subjects}>
+              {r.subjects.map((subject) => (
+                <View
+                  key={subject}
+                  style={[styles.subject, { backgroundColor: theme.primarySoft }]}
+                >
+                  <AppText variant="caption" color={theme.primary} style={styles.bold}>
+                    {subject}
+                  </AppText>
+                </View>
+              ))}
+            </View>
+          ) : null}
+        </Card>
+
         {items.data?.length ? (
-          <Card>
-            <AppText variant="subheading">{`${t('record.items')} (${items.data.length})`}</AppText>
+          <Card style={styles.section}>
+            <AppText variant="heading">{`${t('record.items')} (${items.data.length})`}</AppText>
             {items.data.map((item, index) => (
               <View key={item.id}>
                 {index > 0 ? <Divider /> : null}
@@ -226,26 +321,6 @@ export default function RecordScreen() {
         ) : items.isPending ? (
           <LoadingView />
         ) : null}
-
-        {holdsEnabled ? (
-          r.holdable ? (
-            <Button
-              label={t('record.placeHold')}
-              icon="bookmark-outline"
-              disabled={!online}
-              onPress={() => setSheet(true)}
-            />
-          ) : (
-            <AppText muted style={styles.center}>
-              {t('record.holdNotAvailable')}
-            </AppText>
-          )
-        ) : null}
-        {!online && holdsEnabled && r.holdable ? (
-          <AppText variant="caption" muted style={styles.center}>
-            {t('common.offlineActionDisabled')}
-          </AppText>
-        ) : null}
       </Screen>
       <HoldSheet recordId={r.id} visible={sheet} onClose={() => setSheet(false)} />
     </>
@@ -254,17 +329,49 @@ export default function RecordScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  hero: { alignItems: 'center', gap: spacing.sm },
+  bold: { fontWeight: '700' },
+  dim: { opacity: 0.88 },
+  hero: { paddingBottom: spacing.xxl + spacing.xl },
+  heroBody: { alignItems: 'center', gap: spacing.sm },
+  // Kapak, aynı tonda olabilen başlık zemininden ayrışsın diye ince çerçeve ve derin gölge
+  coverFrame: {
+    padding: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    boxShadow: '0 18px 36px rgba(0, 0, 0, 0.35)',
+    marginBottom: spacing.sm,
+  },
   center: { textAlign: 'center' },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  action: { gap: spacing.sm },
+  notHoldable: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  section: { gap: spacing.md },
+  subjects: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  subject: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
   itemRow: { flexDirection: 'row', gap: spacing.md, paddingVertical: 4 },
   itemStatus: { alignItems: 'flex-end', gap: 4 },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' },
   sheet: {
     padding: spacing.lg,
     gap: spacing.md,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
   },
+  grabber: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, marginBottom: 4 },
   option: {
     flexDirection: 'row',
     alignItems: 'center',

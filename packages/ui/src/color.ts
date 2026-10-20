@@ -62,3 +62,11 @@ export function onColor(background: string): '#000000' | '#FFFFFF' {
     ? '#FFFFFF'
     : '#000000';
 }
+
+/** İki rengi `t` oranında karıştırır (0 → a, 1 → b); yumuşak zemin tonları için. */
+export function mix(a: string, b: string, t: number): string {
+  const x = hexToRgb(a);
+  const y = hexToRgb(b);
+  const k = Math.min(Math.max(t, 0), 1);
+  return rgbToHex({ r: x.r + (y.r - x.r) * k, g: x.g + (y.g - x.g) * k, b: x.b + (y.b - x.b) * k });
+}

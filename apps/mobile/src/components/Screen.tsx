@@ -16,8 +16,11 @@ export function Screen({
   refreshing,
   onRefresh,
   padded = true,
+  hero,
 }: {
   children: ReactNode;
+  /** Kaydırılan içeriğin en üstünde, kenar boşluğu olmadan çizilen başlık (ör. `<Hero>`). */
+  hero?: ReactNode;
   scroll?: boolean;
   safeTop?: boolean;
   refreshing?: boolean;
@@ -27,7 +30,7 @@ export function Screen({
   const theme = useTheme();
   const content = scroll ? (
     <ScrollView
-      contentContainerStyle={[padded && styles.padded, styles.scrollContent]}
+      contentContainerStyle={styles.scrollContent}
       keyboardShouldPersistTaps="handled"
       refreshControl={
         onRefresh ? (
@@ -40,14 +43,17 @@ export function Screen({
         ) : undefined
       }
     >
-      {children}
+      {hero}
+      <View style={[styles.body, padded && styles.padded, hero ? styles.afterHero : null]}>
+        {children}
+      </View>
     </ScrollView>
   ) : (
     <View style={[styles.flex, padded && styles.padded]}>{children}</View>
   );
   return (
     <SafeAreaView
-      edges={safeTop ? ['top', 'left', 'right'] : ['left', 'right']}
+      edges={safeTop && !hero ? ['top', 'left', 'right'] : ['left', 'right']}
       style={[styles.flex, { backgroundColor: theme.background }]}
     >
       <OfflineBanner />
@@ -59,5 +65,7 @@ export function Screen({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   padded: { padding: spacing.lg },
-  scrollContent: { gap: spacing.lg, paddingBottom: spacing.xl * 2 },
+  scrollContent: { paddingBottom: spacing.xxl * 2 },
+  body: { gap: spacing.lg },
+  afterHero: { marginTop: -spacing.xxl },
 });

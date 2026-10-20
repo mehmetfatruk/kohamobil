@@ -6,17 +6,27 @@ import { api } from '../../src/api';
 import { Screen } from '../../src/components/Screen';
 import { TenantLogo } from '../../src/components/TenantLogo';
 import { confirm } from '../../src/components/feedback';
-import { AppText, Card, ErrorView, InfoRow, ListItem, LoadingView } from '../../src/components/ui';
+import { Hero } from '../../src/components/Hero';
+import {
+  AppText,
+  Card,
+  ErrorView,
+  InfoRow,
+  ListGroup,
+  ListItem,
+  LoadingView,
+} from '../../src/components/ui';
 import { useProfile } from '../../src/hooks/useApi';
 import { errorText } from '../../src/lib/errors';
 import { formatDate } from '../../src/lib/format';
 import { queryClient } from '../../src/lib/query-client';
 import i18n from '../../src/i18n';
 import { useSession } from '../../src/state/session';
-import { spacing } from '../../src/theme';
+import { spacing, useTheme } from '../../src/theme';
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const profile = useProfile();
   const { tenant, signOut, forgetTenant } = useSession();
   if (!tenant) return null;
@@ -57,22 +67,57 @@ export default function ProfileScreen() {
   const toggleLanguage = () => void i18n.changeLanguage(i18n.language === 'tr' ? 'en' : 'tr');
   const p = profile.data;
 
+  const initials = p ? `${p.firstName[0] ?? ''}${p.lastName[0] ?? ''}`.toLocaleUpperCase('tr') : '';
+  const glass = theme.onHero === '#FFFFFF' ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.08)';
+
+  const hero = (
+    <Hero style={styles.hero}>
+      <AppText variant="overline" color={theme.onHero} style={styles.dim}>
+        {t('profile.title').toLocaleUpperCase('tr')}
+      </AppText>
+      {p ? (
+        <View style={styles.identity}>
+          <View style={[styles.avatar, { backgroundColor: glass }]}>
+            <AppText variant="heading" color={theme.onHero}>
+              {initials}
+            </AppText>
+          </View>
+          <View style={styles.flex}>
+            <AppText variant="title" color={theme.onHero} numberOfLines={2}>
+              {`${p.firstName} ${p.lastName}`}
+            </AppText>
+            <AppText color={theme.onHero} style={styles.dim}>
+              {p.category.name}
+            </AppText>
+          </View>
+        </View>
+      ) : null}
+      <View style={[styles.tenantChip, { backgroundColor: glass }]}>
+        <TenantLogo tenant={tenant} size={22} color="#FFFFFF" textColor={theme.heroEnd} />
+        <AppText variant="caption" color={theme.onHero} numberOfLines={1} style={styles.bold}>
+          {tenant.name}
+        </AppText>
+      </View>
+    </Hero>
+  );
+
   return (
-    <Screen safeTop onRefresh={() => void profile.refetch()} refreshing={profile.isRefetching}>
-      <AppText variant="title">{t('profile.title')}</AppText>
+    <Screen
+      safeTop
+      hero={hero}
+      onRefresh={() => void profile.refetch()}
+      refreshing={profile.isRefetching}
+    >
       {profile.isPending ? (
-        <LoadingView />
+        <Card>
+          <LoadingView />
+        </Card>
       ) : profile.isError ? (
-        <ErrorView message={errorText(profile.error)} onRetry={() => void profile.refetch()} />
+        <Card>
+          <ErrorView message={errorText(profile.error)} onRetry={() => void profile.refetch()} />
+        </Card>
       ) : p ? (
         <Card style={styles.card}>
-          <View style={styles.identity}>
-            <TenantLogo tenant={tenant} size={52} />
-            <View style={styles.flex}>
-              <AppText variant="heading">{`${p.firstName} ${p.lastName}`}</AppText>
-              <AppText muted>{p.category.name}</AppText>
-            </View>
-          </View>
           <InfoRow label={t('profile.cardNumber')} value={p.cardNumber} />
           <InfoRow label={t('profile.email')} value={p.email} />
           <InfoRow label={t('profile.phone')} value={p.phone} />
@@ -84,7 +129,7 @@ export default function ProfileScreen() {
         </Card>
       ) : null}
 
-      <View>
+      <ListGroup>
         {features.digitalCard ? (
           <ListItem
             icon="barcode-outline"
@@ -124,6 +169,9 @@ export default function ProfileScreen() {
           trailing={t(`language.${i18n.language === 'en' ? 'en' : 'tr'}`)}
           onPress={toggleLanguage}
         />
+      </ListGroup>
+
+      <ListGroup>
         <ListItem
           icon="swap-horizontal-outline"
           label={t('profile.changeTenant')}
@@ -135,7 +183,7 @@ export default function ProfileScreen() {
           destructive
           onPress={() => void logout()}
         />
-      </View>
+      </ListGroup>
 
       <AppText variant="caption" muted style={styles.footer}>
         {`${t('app.name')} · ${t('app.integrationNote')}`}
@@ -146,12 +194,28 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  bold: { fontWeight: '700', flexShrink: 1 },
+  dim: { opacity: 0.85 },
+  hero: { paddingBottom: spacing.xxl + spacing.lg },
   card: { gap: 2 },
-  identity: {
+  identity: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  avatar: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tenantChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.sm,
+    gap: spacing.sm,
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingLeft: 6,
+    paddingRight: 12,
+    borderRadius: 999,
+    maxWidth: '100%',
   },
   footer: { textAlign: 'center' },
 });

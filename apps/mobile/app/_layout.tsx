@@ -28,6 +28,14 @@ function AppStack() {
     void hydrate();
   }, [hydrate]);
 
+  // Renkli başlıklı (Hero) ekranlarda üst çubuk saydamdır; geri oku başlık rengine uyar.
+  const heroHeader = {
+    title: '',
+    headerTransparent: true,
+    headerTintColor: theme.onHero,
+    headerStyle: { backgroundColor: 'transparent' },
+  } as const;
+
   // Gezinme yapısı HER ZAMAN çizilir (Expo Router gereksinimi); oturum bilgisi yüklenene kadar
   // üstte bir yükleme katmanı gösterilir. Erişim kontrolü yönlendirmelerle değil korumalı
   // ekran gruplarıyla yapılır — böylece yönlendirme döngüsü oluşamaz.
@@ -57,12 +65,12 @@ function AppStack() {
             name="(onboarding)/scan"
             options={{ title: t('onboarding.scanQr'), presentation: 'modal' }}
           />
-          <Stack.Screen name="(onboarding)/login" options={{ title: t('auth.title') }} />
+          <Stack.Screen name="(onboarding)/login" options={heroHeader} />
         </Stack.Protected>
 
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="record/[id]" options={{ title: t('record.title') }} />
+          <Stack.Screen name="record/[id]" options={heroHeader} />
           <Stack.Screen name="browse" options={{ title: t('catalog.newArrivalsTitle') }} />
           <Stack.Screen name="card" options={{ title: t('card.title'), presentation: 'modal' }} />
           <Stack.Screen name="libraries" options={{ title: t('libraries.title') }} />

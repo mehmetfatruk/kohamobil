@@ -71,7 +71,7 @@ export function RecordTile({ record }: { record: RecordSummary }) {
         title={record.title}
         author={record.author}
         uri={record.coverUrl}
-        width={112}
+        width={120}
       />
       <AppText variant="caption" numberOfLines={2} style={styles.bold}>
         {record.title}
@@ -89,5 +89,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.md, padding: spacing.md },
   body: { flex: 1, gap: 2 },
   bold: { fontWeight: '600' },
-  tile: { width: 112, gap: 4 },
+  tile: { width: 120, gap: 6 },
 });

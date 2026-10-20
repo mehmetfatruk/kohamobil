@@ -49,6 +49,9 @@ export const tr = {
     invalidCode: 'Geçerli bir kurum kodu veya adres girin.',
     noResults: 'Aramanızla eşleşen kurum yok.',
     or: 'veya',
+    featureLoans: 'Ödünçlerinizi ve iade tarihlerinizi takip edin',
+    featureRenew: 'Tek dokunuşla süre uzatın, rezervasyon yapın',
+    featureCard: 'Dijital kütüphane kartınız her an yanınızda',
   },
   auth: {
     title: 'Giriş Yap',
@@ -58,6 +61,7 @@ export const tr = {
     demoHint: 'Demo hesabı — kullanıcı adı: demo · şifre: demo',
     changeTenant: 'Kurum değiştir',
     forgot: 'Şifrenizi unuttuysanız kütüphanenizle iletişime geçin.',
+    subtitle: 'Kütüphane hesabınızla giriş yapın',
   },
   home: {
     greeting: 'Merhaba, {{name}}',
@@ -70,6 +74,12 @@ export const tr = {
     browseByType: 'Materyal türüne göre keşfet',
     newArrivals: 'Yeni Gelenler',
     announcements: 'Duyurular',
+    searchHint: 'Kitap, yazar veya konu arayın',
+    myCard: 'Kartım',
+    statusOverdue: '{{count}} kitabınızın iade tarihi geçti.',
+    statusDueSoon: '{{count}} kitabınızın iade tarihi yaklaşıyor.',
+    statusAllGood: 'Tüm ödünçleriniz zamanında. İyi okumalar!',
+    statusNoLoans: 'Şu an ödünç aldığınız materyal yok.',
   },
   catalog: {
     searchPlaceholder: 'Katalogda ara',
@@ -107,6 +117,7 @@ export const tr = {
     items: 'Nüshalar',
     dueDate: 'İade tarihi: {{date}}',
     placeHold: 'Rezervasyon Yap',
+    details: 'Künye',
     holdNotAvailable: 'Bu kayıt için rezervasyon yapılamıyor.',
     chooseLibrary: 'Teslim alacağınız kütüphaneyi seçin',
     holdPlaced: 'Rezervasyonunuz oluşturuldu. Hazır olduğunda bildirim alacaksınız.',

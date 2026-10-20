@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { radius, spacing, useTheme } from '../theme';
-import type { IconName } from './ui';
+import { useTheme } from '../theme';
+import { IconBubble, type IconName } from './ui';
 
+/** Özet kartındaki tek sayaç: ikon, büyük değer, etiket. */
 export function SummaryTile({
   label,
   value,
@@ -31,27 +31,24 @@ export function SummaryTile({
       onPress={onPress}
       style={({ pressed }) => [
         styles.tile,
-        { backgroundColor: theme.surface, borderColor: theme.border, opacity: pressed ? 0.8 : 1 },
+        { backgroundColor: pressed ? theme.surfaceAlt : 'transparent' },
       ]}
     >
-      <Ionicons name={icon} size={20} color={color} />
-      <Text style={[styles.value, { color }]}>{value}</Text>
-      <Text numberOfLines={2} style={[styles.label, { color: theme.textMuted }]}>
-        {label}
-      </Text>
+      <IconBubble icon={icon} color={color} size={34} />
+      <View>
+        <Text style={[styles.value, { color: theme.text }]} numberOfLines={1} adjustsFontSizeToFit>
+          {value}
+        </Text>
+        <Text numberOfLines={1} style={[styles.label, { color: theme.textMuted }]}>
+          {label}
+        </Text>
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  tile: {
-    flexBasis: '30%',
-    flexGrow: 1,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: spacing.md,
-    gap: 2,
-  },
-  value: { fontSize: 22, fontWeight: '800' },
-  label: { fontSize: 13 },
+  tile: { flex: 1, gap: 8, padding: 10, borderRadius: 14 },
+  value: { fontSize: 22, fontWeight: '800', letterSpacing: -0.4 },
+  label: { fontSize: 12, fontWeight: '500' },
 });

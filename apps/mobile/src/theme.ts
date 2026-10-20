@@ -1,6 +1,6 @@
 import { createTheme, type ThemeColors } from '@mirakil/ui';
 import { useMemo } from 'react';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, type ViewStyle } from 'react-native';
 
 import { useSession } from './state/session';
 
@@ -23,5 +23,13 @@ export function useTheme(): ThemeColors {
   );
 }
 
-export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 } as const;
-export const radius = { sm: 8, md: 12, lg: 16, pill: 999 } as const;
+export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
+export const radius = { sm: 10, md: 14, lg: 20, xl: 28, pill: 999 } as const;
+
+/** Yumuşak kart gölgesi (yeni mimarideki `boxShadow`); koyu temada gölge yerine ince kenar. */
+export function elevation(theme: ThemeColors, level: 1 | 2 | 3 = 1): ViewStyle {
+  if (theme.scheme === 'dark') return { borderWidth: 1, borderColor: theme.border };
+  const y = [0, 2, 6, 14][level]!;
+  const blur = [0, 10, 20, 32][level]!;
+  return { boxShadow: `0 ${y}px ${blur}px rgba(15, 23, 42, ${0.04 + level * 0.025})` };
+}

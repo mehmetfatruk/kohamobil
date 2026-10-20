@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { AppNotification } from '@mirakil/types';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +9,7 @@ import {
   Button,
   Card,
   ErrorView,
+  IconBubble,
   LoadingView,
   MessageView,
   type IconName,
@@ -20,14 +20,26 @@ import { formatDate } from '../../src/lib/format';
 import { spacing, useTheme } from '../../src/theme';
 
 const ICONS: Record<AppNotification['type'], IconName> = {
-  DUE_SOON: 'time-outline',
-  DUE_TODAY: 'today-outline',
-  OVERDUE: 'alert-circle-outline',
-  HOLD_READY: 'checkmark-circle-outline',
-  HOLD_EXPIRING: 'hourglass-outline',
-  MEMBERSHIP_EXPIRING: 'card-outline',
-  LIBRARY_ANNOUNCEMENT: 'megaphone-outline',
-  SYSTEM: 'shield-checkmark-outline',
+  DUE_SOON: 'time',
+  DUE_TODAY: 'today',
+  OVERDUE: 'alert-circle',
+  HOLD_READY: 'checkmark-done',
+  HOLD_EXPIRING: 'hourglass',
+  MEMBERSHIP_EXPIRING: 'card',
+  LIBRARY_ANNOUNCEMENT: 'megaphone',
+  SYSTEM: 'shield-checkmark',
+};
+
+type Tone = 'ok' | 'warning' | 'danger' | 'neutral';
+const TONES: Record<AppNotification['type'], Tone> = {
+  DUE_SOON: 'warning',
+  DUE_TODAY: 'warning',
+  OVERDUE: 'danger',
+  HOLD_READY: 'ok',
+  HOLD_EXPIRING: 'warning',
+  MEMBERSHIP_EXPIRING: 'warning',
+  LIBRARY_ANNOUNCEMENT: 'neutral',
+  SYSTEM: 'neutral',
 };
 
 function openTarget(notification: AppNotification) {
@@ -79,6 +91,12 @@ export default function Notifications() {
       ) : (
         notifications.data.map((n) => {
           const unread = !n.readAt;
+          const color = {
+            ok: theme.statusOk,
+            warning: theme.statusWarning,
+            danger: theme.statusDanger,
+            neutral: theme.primary,
+          }[TONES[n.type]];
           return (
             <Card
               key={n.id}
@@ -86,15 +104,13 @@ export default function Notifications() {
                 if (unread) markRead.mutate(n.id);
                 openTarget(n);
               }}
-              style={[styles.item, unread && { borderColor: theme.primary, borderWidth: 1.5 }]}
+              style={[styles.item, !unread && styles.read]}
             >
-              <Ionicons
-                name={ICONS[n.type]}
-                size={24}
-                color={unread ? theme.primary : theme.textMuted}
-              />
+              <IconBubble icon={ICONS[n.type]} color={color} size={42} />
               <View style={styles.flex}>
-                <AppText variant="subheading">{n.title}</AppText>
+                <AppText variant="subheading" style={unread ? styles.bold : null}>
+                  {n.title}
+                </AppText>
                 <AppText muted>{n.body}</AppText>
                 <AppText variant="caption" muted>
                   {formatDate(n.createdAt)}
@@ -113,5 +129,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1, gap: 2 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   item: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
+  read: { opacity: 0.75 },
+  bold: { fontWeight: '800' },
   dot: { width: 10, height: 10, borderRadius: 5, marginTop: 6 },
 });

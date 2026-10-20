@@ -18,7 +18,7 @@ import { useFines, useHolds, useLoans } from '../../src/hooks/useApi';
 import { errorText } from '../../src/lib/errors';
 import { formatDate, formatMoney, isZero } from '../../src/lib/format';
 import { useSession } from '../../src/state/session';
-import { radius, spacing, useTheme } from '../../src/theme';
+import { elevation, radius, spacing, useTheme } from '../../src/theme';
 
 type Tab = 'loans' | 'holds' | 'fines';
 
@@ -34,7 +34,7 @@ function Segments({
   const theme = useTheme();
   return (
     <View
-      style={[styles.segments, { backgroundColor: theme.surface, borderColor: theme.border }]}
+      style={[styles.segments, { backgroundColor: theme.surfaceAlt }]}
       accessibilityRole="tablist"
     >
       {tabs.map((tab) => {
@@ -45,11 +45,14 @@ function Segments({
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
             onPress={() => onChange(tab.key)}
-            style={[styles.segment, active && { backgroundColor: theme.primary }]}
+            style={[
+              styles.segment,
+              active && [{ backgroundColor: theme.surface }, elevation(theme)],
+            ]}
           >
             <AppText
               variant="caption"
-              color={active ? theme.onPrimary : theme.text}
+              color={active ? theme.primary : theme.textMuted}
               style={styles.segmentText}
             >
               {tab.label}
@@ -94,9 +97,16 @@ function FinesView() {
   const zero = isZero(balance);
   return (
     <>
-      <Card style={styles.total}>
-        <AppText variant="subheading">{t('myBooks.totalFines')}</AppText>
-        <AppText variant="title" color={zero ? theme.statusOk : theme.statusDanger}>
+      <Card
+        style={[
+          styles.total,
+          { backgroundColor: zero ? theme.statusOkSoft : theme.statusDangerSoft },
+        ]}
+      >
+        <AppText variant="overline" color={zero ? theme.statusOk : theme.statusDanger}>
+          {t('myBooks.totalFines').toLocaleUpperCase('tr')}
+        </AppText>
+        <AppText variant="display" color={zero ? theme.statusOk : theme.statusDanger}>
           {formatMoney(balance)}
         </AppText>
         {!zero ? (
@@ -194,14 +204,9 @@ export default function MyBooks() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  segments: {
-    flexDirection: 'row',
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: 4,
-  },
+  segments: { flexDirection: 'row', borderRadius: radius.md, padding: 4 },
   segment: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: radius.sm },
-  segmentText: { fontWeight: '700' },
+  segmentText: { fontWeight: '700', fontSize: 14 },
   total: { gap: 4 },
   line: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 4 },
   amounts: { alignItems: 'flex-end' },

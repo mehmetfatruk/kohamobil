@@ -49,6 +49,9 @@ export const en: Messages = {
     invalidCode: 'Enter a valid institution code or address.',
     noResults: 'No institutions match your search.',
     or: 'or',
+    featureLoans: 'Track your loans and due dates',
+    featureRenew: 'Renew and place holds with a single tap',
+    featureCard: 'Your digital library card, always with you',
   },
   auth: {
     title: 'Sign in',
@@ -58,6 +61,7 @@ export const en: Messages = {
     demoHint: 'Demo account — username: demo · password: demo',
     changeTenant: 'Change institution',
     forgot: 'If you forgot your password, please contact your library.',
+    subtitle: 'Sign in with your library account',
   },
   home: {
     greeting: 'Hello, {{name}}',
@@ -70,6 +74,12 @@ export const en: Messages = {
     browseByType: 'Browse by item type',
     newArrivals: 'New Arrivals',
     announcements: 'Announcements',
+    searchHint: 'Search for books, authors or subjects',
+    myCard: 'My card',
+    statusOverdue: '{{count}} of your items are overdue.',
+    statusDueSoon: '{{count}} of your items are due soon.',
+    statusAllGood: 'All your loans are on time. Happy reading!',
+    statusNoLoans: 'You have no items on loan right now.',
   },
   catalog: {
     searchPlaceholder: 'Search the catalog',
@@ -107,6 +117,7 @@ export const en: Messages = {
     items: 'Copies',
     dueDate: 'Due: {{date}}',
     placeHold: 'Place Hold',
+    details: 'Details',
     holdNotAvailable: 'Holds cannot be placed on this record.',
     chooseLibrary: 'Choose a pickup library',
     holdPlaced: 'Your hold has been placed. You will be notified when it is ready.',
