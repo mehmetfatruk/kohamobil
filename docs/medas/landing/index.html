@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Open+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: lacivert "ışık masası" hero içinde canlı arama demosu, ardından açık zeminde sade bölümler. Kontakt baskı (contact sheet) motifi tüm sayfada tekrar eder. */
+/* Layout: lacivert hero içinde gerçek web ve mobil ekranları, ardından açık zeminde ekran görüntülü özellik vitrini (metin + ekran, sırayla yer değiştirir). */
 :root {
   --blue: #1A73E8;
   --blue-ink: #1558B0;
@@ -27,19 +27,21 @@
   --font-body: "Open Sans", Arial, Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --radius: 10px;
+  --show-light: block;
+  --show-dark: none;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --blue: #5B9BF0; --blue-ink: #8DBBF5; --bg: #0B1220; --surface: #121B2E; --fg: #E2E8F0;
     --muted: #94A3B8; --line: #22304A; --green: #34D399; --green-ink: #4ADE80; --blue-soft: #16294A;
-    --hero-bg: #070D1A; --hero-panel: #0F1A30; --hero-line: #1E2B45;
+    --hero-bg: #070D1A; --hero-panel: #0F1A30; --hero-line: #1E2B45; --show-light: none; --show-dark: block;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --blue: #5B9BF0; --blue-ink: #8DBBF5; --bg: #0B1220; --surface: #121B2E; --fg: #E2E8F0;
   --muted: #94A3B8; --line: #22304A; --green: #34D399; --green-ink: #4ADE80; --blue-soft: #16294A;
-  --hero-bg: #070D1A; --hero-panel: #0F1A30; --hero-line: #1E2B45;
+  --hero-bg: #070D1A; --hero-panel: #0F1A30; --hero-line: #1E2B45; --show-light: none; --show-dark: block;
   color-scheme: dark;
 }
 
@@ -83,7 +85,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* Hero */
 .hero { background: var(--hero-bg); color: var(--hero-fg); padding-block: 64px 80px; overflow: hidden; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 56px; align-items: center; }
 @media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
 .hero h1 { font-size: clamp(34px, 5.2vw, 58px); font-weight: 800; letter-spacing: -.01em; }
 .hero h1 em { font-style: normal; color: #5B9BF0; }
@@ -94,30 +96,42 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hero-facts li { display: flex; gap: 8px; align-items: center; }
 .hero-facts li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22C55E; }
 
-/* Archive demo */
-.demo { background: var(--hero-panel); border: 1px solid var(--hero-line); border-radius: 14px; padding: 16px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.6); min-width: 0; }
-.demo-bar { display: flex; align-items: center; gap: 10px; background: #0A1222; border: 1px solid var(--hero-line); border-radius: 10px; padding: 11px 14px; }
-.demo-bar svg { flex: none; color: #5B9BF0; }
-.demo-query { font-family: var(--font-mono); font-size: 14px; color: var(--hero-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
-.demo-query .caret { display: inline-block; width: 8px; height: 16px; background: #5B9BF0; vertical-align: -3px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
-@keyframes blink { 50% { opacity: 0; } }
-.demo-meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 12px 2px; font-family: var(--font-mono); font-size: 11.5px; color: var(--hero-muted); }
-.demo-meta b { color: #22C55E; font-weight: 500; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px 4px 4px; border-radius: 99px; background: #0A1222; border: 1px solid var(--hero-line); color: var(--hero-fg); }
-.chip .av { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 9px; font-weight: 700; color: #0F172A; }
-.chip.plain { padding-left: 10px; }
-.sheet { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-.frame { position: relative; aspect-ratio: 4 / 3; border-radius: 4px; overflow: hidden; max-width: 100%; transition: opacity .35s, transform .35s; }
-.frame span { position: absolute; left: 5px; bottom: 4px; font-family: var(--font-mono); font-size: 9px; color: rgba(255,255,255,.85); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
-.frame.hit { outline: 2px solid #22C55E; outline-offset: -2px; }
-.frame.dim { opacity: .22; transform: scale(.97); }
-.frame .face { position: absolute; border: 1.5px solid #22C55E; border-radius: 3px; }
-.exif { margin-top: 12px; display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 11px; color: var(--hero-muted); border-top: 1px dashed var(--hero-line); padding-top: 10px; }
-.demo-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-.demo-tabs button { font: 500 12px var(--font-body); color: var(--hero-muted); background: transparent; border: 1px solid var(--hero-line); border-radius: 99px; padding: 5px 11px; cursor: pointer; }
-.demo-tabs button[aria-pressed="true"] { color: #fff; background: #1A73E8; border-color: #1A73E8; }
-@media (max-width: 480px) { .sheet { grid-template-columns: repeat(3, minmax(0, 1fr)); } .frame:nth-child(n+10) { display: none; } }
+/* Gerçek ekranlar */
+.hero-shots { position: relative; min-width: 0; }
+.hero-shots img { width: 100%; height: auto; filter: drop-shadow(0 30px 50px rgba(0,0,0,.55)); }
+.hero-shots img.shot-light { display: var(--show-light); } .hero-shots img.shot-dark { display: var(--show-dark); }
+.phone { margin: 0; border-radius: 26px; padding: 7px; background: #0A0F1C; border: 1px solid #2A3A57; box-shadow: 0 30px 60px -20px rgba(0,0,0,.55); }
+.phone img { display: block; width: 100%; height: auto; border-radius: 20px; }
+.callout { position: absolute; font: 600 12px var(--font-display); color: #0F172A; background: #E8EEF7; padding: 6px 11px; border-radius: 99px; box-shadow: 0 8px 20px -8px rgba(0,0,0,.5); display: flex; align-items: center; gap: 7px; }
+.callout::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22C55E; }
+.callout.c1 { left: -10px; top: 28%; }
+.callout.c2 { right: 4%; bottom: -6px; }
+@media (max-width: 960px) { .callout.c1 { left: 8px; } }
+@media (max-width: 520px) { .callout { display: none; } }
+.show { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; padding-block: 48px; border-top: 1px solid var(--line); }
+.show.flip .show-text { order: 2; }
+@media (max-width: 860px) { .show { grid-template-columns: 1fr; gap: 28px; } .show.flip .show-text { order: 0; } }
+.show-text { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.show-k { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-ink); }
+.show-text h3 { font-size: clamp(22px, 2.6vw, 28px); font-weight: 700; }
+.show-text p { color: var(--muted); font-size: 17px; }
+.show-text code { font-family: var(--font-mono); font-size: 14px; background: var(--blue-soft); color: var(--fg); padding: 1px 6px; border-radius: 4px; }
+.ticks { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 8px; font-size: 15px; }
+.ticks li { display: flex; gap: 10px; }
+.ticks li::before { content: ""; flex: none; width: 16px; height: 16px; margin-top: 4px; border-radius: 50%; background: var(--green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6.5 11.2 3.3 8l1.1-1.1 2.1 2.1 5-5L12.6 5z' fill='white'/%3E%3C/svg%3E") center/100% no-repeat; }
+.show-media { min-width: 0; display: grid; justify-items: center; }
+.show-media.stack { gap: 14px; }
+.frame-img { margin: 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #0A0F1C; box-shadow: 0 24px 50px -28px rgba(15,23,42,.45); width: 100%; }
+.frame-img img { display: block; width: 100%; height: auto; }
+.frame-img.narrow { max-width: 440px; }
+.frame-img.small { max-width: 300px; }
+.mobile-row { grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); }
+@media (max-width: 860px) { .mobile-row { grid-template-columns: 1fr; } }
+.phones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: end; }
+.phones .phone { max-width: 200px; justify-self: center; width: 100%; }
+.phones .phone:nth-child(2) { transform: translateY(-24px); }
+.phones figcaption { font-size: 12.5px; text-align: center; color: #94A3B8; padding: 8px 2px 2px; }
+#ozellikler .feat-grid { margin-top: 48px; }
 
 /* Problem */
 .problem-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
@@ -305,30 +319,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       </div>
     </div>
 
-    <div class="demo" aria-label="MEDAS arama örneği">
-      <div class="demo-bar">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <div class="demo-query" id="demoQuery">kurdele kesimi, park açılışı<span class="caret"></span></div>
-      </div>
-      <div class="demo-meta">
-        <span id="demoCount">218.406 kare tarandı · <b>7 eşleşme</b> · 0,4 sn</span>
-        <span>Arşiv: 2014 – 2026</span>
-      </div>
-      <div class="chips" id="demoChips">
-        <span class="chip"><span class="av" style="background:#8DBBF5">BŞ</span>Belediye Başkanı</span>
-        <span class="chip plain">📍 Merkez ilçe</span>
-        <span class="chip plain">2019 – 2024</span>
-      </div>
-      <div class="sheet" id="sheet"></div>
-      <div class="exif" id="demoExif">
-        <span>DSC_0412.NEF</span><span>f/2.8 · 1/250 · ISO 400</span><span>14.06.2023 11:42</span>
-      </div>
-      <div class="demo-tabs" role="group" aria-label="Örnek aramalar">
-        <button type="button" aria-pressed="true" data-q="0">Belediye</button>
-        <button type="button" aria-pressed="false" data-q="1">Otel</button>
-        <button type="button" aria-pressed="false" data-q="2">Etkinlik</button>
-        <button type="button" aria-pressed="false" data-q="3">Üniversite</button>
-      </div>
+    <div class="hero-shots" aria-label="MEDAS arayüzü">
+      <img class="shot-light" src="img/web-light.webp" width="1600" height="1031" alt="MEDAS web ve mobil arayüzü: tarihe göre gruplanmış fotoğraf zaman çizelgesi">
+      <img class="shot-dark" src="img/web-dark.webp" width="1600" height="1031" alt="MEDAS web ve mobil arayüzü, koyu tema">
+      <span class="callout c1">Zaman çizelgesi</span>
+      <span class="callout c2">Mobil otomatik yükleme</span>
     </div>
   </div>
 </section>
@@ -378,52 +373,101 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <div class="section-head">
       <span class="eyebrow">Özellikler</span>
       <h2>Etiketlemeye gerek yok. MEDAS her kareyi tanır.</h2>
+      <p>Aşağıdaki ekranlar sistemin gerçek arayüzünden alınmıştır.</p>
     </div>
+
+    <div class="show">
+      <div class="show-text">
+        <span class="show-k">Yüz tanıma</span>
+        <h3>Kişiyi bir kez adlandırın, tüm kareleri bulun.</h3>
+        <p>MEDAS arşivdeki yüzleri gruplar. Başkanı, rektörü veya genel müdürü bir kez adlandırdığınızda, yer aldığı tüm fotoğraflar tarih sırasıyla tek sayfada listelenir.</p>
+        <ul class="ticks"><li>Aynı kişinin farklı gruplarını birleştirme</li><li>Kişiyi gizleme ve kapak fotoğrafı seçme</li><li>Kurum kararıyla açılır, varsayılan olarak kapalıdır</li></ul>
+      </div>
+      <div class="show-media stack">
+        <figure class="frame-img"><img src="img/people.webp" width="1600" height="329" alt="Keşfet ekranında yüz tanıma ile gruplanmış kişiler"></figure>
+        <figure class="frame-img"><img src="img/person.webp" width="1200" height="606" alt="Bir kişinin yer aldığı tüm fotoğraflar ve kişi menüsü"></figure>
+      </div>
+    </div>
+
+    <div class="show flip">
+      <div class="show-text">
+        <span class="show-k">Arama</span>
+        <h3>Tarif edin, filtreleyin, bulun.</h3>
+        <p>Görseli kelimelerle tarif edin: <code>kurdele kesimi</code>, <code>yağmurda tören</code>, <code>sahilde gün batımı</code>. Sonucu kişi, yer, kamera, tarih aralığı ve medya türüyle daraltın.</p>
+        <ul class="ticks"><li>İçeriğe göre doğal dille arama</li><li>Dosya adı, açıklama ve etiketle arama</li><li>Fotoğraftaki yazılarda arama (OCR)</li></ul>
+      </div>
+      <div class="show-media">
+        <figure class="frame-img narrow"><img src="img/search-filters.webp" width="900" height="1016" alt="Gelişmiş arama seçenekleri: kişiler, arama türü, etiket, yer, kamera, tarih"></figure>
+      </div>
+    </div>
+
+    <div class="show">
+      <div class="show-text">
+        <span class="show-k">Arşiv aktarımı</span>
+        <h3>Eski klasör yapınız korunur.</h3>
+        <p>Disklerdeki yıllara ve etkinliklere göre açılmış klasörler MEDAS'ta aynen görünür. Ekibiniz alıştığı yapıyla çalışmaya devam eder, arama ise tüm arşivde yapılır.</p>
+        <ul class="ticks"><li>Harici disk ve NAS klasörlerini bağlama</li><li>Çekim tarihi ve konum bilgisinin korunması</li><li>Kopya dosyaların tespiti</li></ul>
+      </div>
+      <div class="show-media">
+        <figure class="frame-img"><img src="img/folders.webp" width="1200" height="663" alt="Klasör görünümü: sol tarafta yıl ve etkinlik klasörleri, sağda fotoğraflar"></figure>
+      </div>
+    </div>
+
+    <div class="show flip">
+      <div class="show-text">
+        <span class="show-k">Paylaşım</span>
+        <h3>Basına ve ajansa kontrollü bağlantı.</h3>
+        <p>Seçtiğiniz fotoğraflar veya albüm için bağlantı oluşturun. Parola koyun, süre belirleyin, indirme ve yükleme iznini siz verin.</p>
+        <ul class="ticks"><li>Parolalı ve süreli bağlantı</li><li>Özel bağlantı adresi</li><li>Çekim bilgilerini gizleme seçeneği</li></ul>
+      </div>
+      <div class="show-media">
+        <figure class="frame-img narrow small"><img src="img/share-link.webp" width="600" height="1154" alt="Paylaşım bağlantısı oluşturma formu: parola, açıklama, son kullanma, indirme izni"></figure>
+      </div>
+    </div>
+
+    <div class="show mobile-row">
+      <div class="show-text">
+        <span class="show-k">Mobil uygulama</span>
+        <h3>Saha ekibi çeker, arşiv kendiliğinden dolar.</h3>
+        <p>iOS ve Android uygulaması, telefonla çekilen fotoğraf ve videoları arka planda arşive yükler. Arama ve paylaşım cepten de yapılır.</p>
+      </div>
+      <div class="phones">
+        <figure class="phone"><img src="img/mobile-timeline.webp" width="600" height="1298" alt="Mobil zaman çizelgesi"><figcaption>Zaman çizelgesi</figcaption></figure>
+        <figure class="phone"><img src="img/mobile-search.webp" width="592" height="1280" alt="Mobil arama: yerler ve nesneler"><figcaption>Yer ve nesneye göre arama</figcaption></figure>
+        <figure class="phone"><img src="img/mobile-backup.webp" width="600" height="1298" alt="Mobil yedekleme ekranı"><figcaption>Otomatik yedekleme</figcaption></figure>
+      </div>
+    </div>
+
     <div class="feat-grid">
       <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8 11h6"/></svg>
-        <h3>Doğal dille arama</h3>
-        <p>Görseli tarif edin: <code>yağmurda tören</code>, <code>sahilde gün batımı</code>, <code>kalabalık konser</code>. Dosya adı veya etiket gerekmez.</p>
-      </div>
-      <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/><path d="M2 6V3h3M22 6V3h-3"/></svg>
-        <h3>Yüz tanıma</h3>
-        <p>Kişileri bir kez adlandırın. Başkanın, rektörün veya genel müdürün bulunduğu tüm kareler tek tıkla listelenir.</p>
-      </div>
-      <div class="feat">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 1 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
-        <h3>Harita ve zaman çizelgesi</h3>
-        <p>Konum bilgisi olan kareler haritada görünür. Yıllara ve aylara göre arşivde hızlıca gezinilir.</p>
-      </div>
-      <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>
-        <h3>Mobil otomatik yükleme</h3>
-        <p>Saha ekibi çeker, fotoğraf ve video arşive kendiliğinden aktarılır. iOS ve Android uygulaması.</p>
-      </div>
-      <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
-        <h3>Kontrollü paylaşım</h3>
-        <p>Basına, ajansa veya misafire süreli ve şifreli bağlantı gönderin. İndirme iznini siz belirleyin.</p>
-      </div>
-      <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg>
-        <h3>Orijinal kalite</h3>
-        <p>RAW, JPEG, HEIC ve video dosyaları sıkıştırılmadan saklanır. Çekim bilgileri (EXIF) korunur, kopyalar tespit edilir.</p>
-      </div>
-      <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><path d="M15 17h4M17 15v4"/></svg>
-        <h3>Albüm ve birim yapısı</h3>
-        <p>Etkinlik, proje veya müdürlük bazında albümler. Her birim kendi arşivini yönetir, yönetim tümünü görür.</p>
-      </div>
-      <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        <h3>Rol ve yetki yönetimi</h3>
-        <p>Kullanıcı bazında görüntüleme, yükleme ve paylaşım yetkisi. Kurumsal oturum açma (SSO) desteği.</p>
+        <h3>Harita görünümü</h3>
+        <p>Konum bilgisi olan kareler haritada görünür. Bir mahalledeki tüm çalışmalar tek bakışta.</p>
       </div>
       <div class="feat">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         <h3>Geçmiş yıllarda bugün</h3>
-        <p>Her sabah, aynı gün önceki yıllarda çekilen kareler önünüze gelir. Sosyal medya ve yıl dönümü paylaşımları için hazır içerik.</p>
+        <p>Aynı gün önceki yıllarda çekilen kareler önünüze gelir. Yıl dönümü paylaşımları için hazır içerik.</p>
+      </div>
+      <div class="feat">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg>
+        <h3>Orijinal kalite</h3>
+        <p>RAW, JPEG, HEIC ve video dosyaları sıkıştırılmadan saklanır. Çekim bilgileri (EXIF) korunur.</p>
+      </div>
+      <div class="feat">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><path d="M15 17h4M17 15v4"/></svg>
+        <h3>Albüm ve birim yapısı</h3>
+        <p>Etkinlik, proje veya müdürlük bazında ortak albümler. Her birim kendi arşivini yönetir.</p>
+      </div>
+      <div class="feat">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <h3>Rol ve yetki yönetimi</h3>
+        <p>Kullanıcı bazında kota ve yetki. Kurumsal oturum açma (OAuth / SSO) desteği.</p>
+      </div>
+      <div class="feat">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <h3>Etiket ve açıklama</h3>
+        <p>Resmi etkinlik adları, proje kodları ve açıklamalar eklenir, aramada kullanılır.</p>
       </div>
     </div>
   </div>
@@ -673,69 +717,14 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Mirakıl Veri İşleme. MEDAS, açık kaynak Immich (AGPL-3.0) üzerine geliştirilmiştir.</span>
+    <span>© 2026 Mirakıl Veri İşleme. MEDAS, açık kaynak Immich (AGPL-3.0) üzerine geliştirilmiştir. Taslaktaki ekran görüntüleri Immich projesinden alınmıştır.</span>
     <span class="draft-flag">TASLAK v0.1</span>
   </div>
 </footer>
 
 <script>
 (function () {
-  // Kontakt baskı kareleri: renk geçişleri gerçek fotoğrafların yerini tutar.
-  var palettes = [
-    ['#3B5B7A','#C9A66B'], ['#1F3A2E','#7FA86A'], ['#6B3A3A','#D98C5F'], ['#2A2F4A','#8C7FB8'],
-    ['#4A5A3A','#C8C27A'], ['#1E3A5A','#6FA8DC'], ['#5A4A3A','#E0C090'], ['#3A2A3A','#B07A9A'],
-    ['#2A4A4A','#80C0B0'], ['#4A3A2A','#C09060'], ['#283850','#A0B8D8'], ['#3A4A2A','#A0C070']
-  ];
-  var scenarios = [
-    { q: 'kurdele kesimi, park açılışı', total: '218.406', hits: [1,4,6,9],
-      chips: [['BŞ','#8DBBF5','Belediye Başkanı'], ['📍 Merkez ilçe'], ['2019 – 2024']],
-      exif: ['DSC_0412.NEF','f/2.8 · 1/250 · ISO 400','14.06.2023 11:42'] },
-    { q: 'havuz başı gün batımı, drone', total: '64.912', hits: [0,5,10],
-      chips: [['📍 Belek tesisi'], ['Sezon 2026'], ['Kullanım hakkı: var']],
-      exif: ['DJI_0087.DNG','f/2.8 · 1/120 · ISO 100','02.07.2026 20:14'] },
-    { q: 'sahne, ödül töreni, ayakta alkış', total: '12.380', hits: [2,3,7,8,11],
-      chips: [['GM','#86EFAC','Genel Müdür'], ['Albüm: Bayi Zirvesi'], ['Paylaşım: 48 saat']],
-      exif: ['IMG_5520.CR3','f/2.0 · 1/200 · ISO 1600','19.09.2026 21:05'] },
-    { q: 'mezuniyet, kep atma, kampüs', total: '341.077', hits: [1,2,5,6,10],
-      chips: [['R','#FCD34D','Rektör'], ['1998 – 2026'], ['Kaynak: kütüphane arşivi']],
-      exif: ['MEZ_1998_014.TIF','Tarama · 600 dpi','27.06.1998'] }
-  ];
-  var sheet = document.getElementById('sheet');
-  for (var i = 0; i < 12; i++) {
-    var p = palettes[i], f = document.createElement('div');
-    f.className = 'frame';
-    f.style.background = 'linear-gradient(' + (130 + i * 17) + 'deg,' + p[0] + ' 0%,' + p[1] + ' 100%)';
-    f.innerHTML = '<span>' + String(i + 1).padStart(2, '0') + 'A</span>';
-    sheet.appendChild(f);
-  }
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function show(n) {
-    var s = scenarios[n];
-    document.getElementById('demoQuery').innerHTML = esc(s.q) + '<span class="caret"></span>';
-    document.getElementById('demoCount').innerHTML = s.total + ' kare tarandı · <b>' + s.hits.length + ' eşleşme</b> · 0,4 sn';
-    document.getElementById('demoChips').innerHTML = s.chips.map(function (c) {
-      return c.length === 3
-        ? '<span class="chip"><span class="av" style="background:' + c[1] + '">' + esc(c[0]) + '</span>' + esc(c[2]) + '</span>'
-        : '<span class="chip plain">' + esc(c[0]) + '</span>';
-    }).join('');
-    document.getElementById('demoExif').innerHTML = s.exif.map(function (e) { return '<span>' + esc(e) + '</span>'; }).join('');
-    Array.prototype.forEach.call(sheet.children, function (fr, idx) {
-      var hit = s.hits.indexOf(idx) > -1;
-      fr.classList.toggle('hit', hit);
-      fr.classList.toggle('dim', !hit);
-      var old = fr.querySelector('.face'); if (old) old.remove();
-      if (hit && s.chips[0].length === 3) {
-        var b = document.createElement('i'); b.className = 'face';
-        b.style.cssText = 'left:' + (30 + (idx * 13) % 30) + '%;top:' + (18 + (idx * 7) % 20) + '%;width:22%;height:30%';
-        fr.appendChild(b);
-      }
-    });
-    document.querySelectorAll('.demo-tabs button').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.q === n)); });
-  }
-  document.querySelectorAll('.demo-tabs button').forEach(function (b) {
-    b.addEventListener('click', function () { show(+b.dataset.q); });
-  });
-  show(0);
 
   // Sektörler
   var sectors = [
