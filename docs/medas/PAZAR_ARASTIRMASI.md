@@ -1,18 +1,18 @@
 # MEDAS (Medya Arşiv Sistemi) Pazar Araştırması ve Hedef Kitle Analizi
 
-Hazırlayan: Mirakıl Veri İşleme · Tarih: Ekim 2026 · Durum: Taslak
+Tarih: Ekim 2026 · Durum: Taslak
 
 ---
 
 ## 1. Yönetici özeti
 
-MEDAS, açık kaynak Immich altyapısı üzerine Mirakıl tarafından özelleştirilmiş, yapay zeka destekli bir fotoğraf ve video arşiv sistemidir. Ürünün güçlü yanları: yüz tanıma, doğal dille arama ("kırmızı kurdele kesim töreni", "sahilde gün batımı"), harita ve zaman çizelgesi, mobil uygulamadan otomatik yükleme ve kurum içine (yerinde) kurulum imkanı.
+MEDAS, açık kaynak Immich altyapısı üzerine özelleştirilmiş, yapay zeka destekli bir fotoğraf ve video arşiv sistemidir. Ürünün güçlü yanları: yüz tanıma, doğal dille arama ("kırmızı kurdele kesim töreni", "sahilde gün batımı"), harita ve zaman çizelgesi, mobil uygulamadan otomatik yükleme ve kurum içine (yerinde) kurulum imkanı.
 
 Pazardaki temel fırsat şudur: Türkiye'de kurumların görsel arşivi büyük ölçüde harici disklerde, WhatsApp gruplarında, Google Drive klasörlerinde ve fotoğrafçıların kişisel bilgisayarlarında dağınık durumda. Aranan bir fotoğrafı bulmak saatler sürüyor, personel değiştiğinde arşiv kayboluyor.
 
 **Önerilen birincil hedef kitle:** Belediyelerin Basın Yayın ve Halkla İlişkiler / Kurumsal İletişim müdürlükleri.
 **İkincil hedef kitle:** Üniversiteler (kurumsal iletişim + kütüphane/arşiv), otel zincirleri ve turizm grupları, etkinlik ve organizasyon firmaları.
-**Mirakıl'ın avantajı:** Mevcut belediye, üniversite ve kütüphane müşteri ağı (Koha, DSpace projeleri). MEDAS bu müşterilere çapraz satış ürünüdür.
+**Giriş stratejisi:** İlk 3 pilot müşteriyi (1 belediye, 1 üniversite, 1 otel grubu) referans olarak kazanmak ve aynı segmentteki benzer kurumlara bu referanslarla ulaşmak.
 
 ---
 
@@ -71,9 +71,9 @@ Gerçek rakip çoğu zaman yazılım değil, alışkanlıktır: harici disk, NAS
 
 ### 3.5 MEDAS'ın farklılaşma noktaları
 
-1. **Mirakıl müşteri ağı ve kamu deneyimi:** Kütüphane ve arşiv projelerinden gelen güven.
+1. **Kamuya uygun satış yapısı:** Doğrudan temin ve ihale süreçlerine hazır teknik şartname ve teklif dokümanları.
 2. **Yerinde kurulum + yerli bulut seçeneği:** Veri kurumda kalır.
-3. **Koha / DSpace entegrasyonu:** Üniversite ve belediye kütüphanelerinin görsel koleksiyonunu katalogla bağlamak. Rakiplerde bu yok.
+3. **Arşiv aktarım hizmeti:** Disklerdeki eski arşivin düzenlenip sisteme aktarılması ürünle birlikte sunulur.
 4. **Mobil uygulama ile otomatik yükleme:** Saha fotoğrafçısı çeker, fotoğraf arşive kendiliğinden düşer.
 5. **Açık standartlar, kilitlenme yok:** Dosyalar orijinal hâliyle saklanır, istendiğinde dışa aktarılır.
 6. **Fiyat:** Açık kaynak altyapı sayesinde kullanıcı başı lisans yerine depolama/kurum bazlı fiyatlandırma.
@@ -96,8 +96,8 @@ Her segment için: ağrı noktası, karar verici, satış mesajı ve öncelik pu
 
 - **Ağrı:** Kurumsal İletişim Koordinatörlüğü mezuniyet, kongre, ziyaret fotoğraflarını yönetemiyor. Kütüphane ve arşiv birimi tarihi fotoğraf koleksiyonunu dijitalleştiriyor ama sunacak platform yok.
 - **Karar verici:** Kurumsal İletişim Koordinatörü, Kütüphane Daire Başkanı, Bilgi İşlem Daire Başkanı.
-- **Mesaj:** "Üniversitenizin 50 yıllık görsel tarihi aranabilir ve paylaşılabilir. Koha ve DSpace ile entegre."
-- **Avantaj:** Mirakıl'ın mevcut kütüphane müşterileri. Çapraz satış için en düşük maliyetli segment.
+- **Mesaj:** "Üniversitenizin 50 yıllık görsel tarihi aranabilir ve paylaşılabilir."
+- **Avantaj:** Kurumsal iletişim ve kütüphane/arşiv birimleri aynı sistemi ortak kullanabilir, tek satışla iki birime değer sunulur.
 
 ### 4.3 Otel zincirleri ve turizm grupları ⭐ 4/5
 
@@ -149,7 +149,7 @@ Her segment için: ağrı noktası, karar verici, satış mesajı ve öncelik pu
 
 ### Öncelik matrisi
 
-| Segment | Ağrı şiddeti | Bütçe | Mirakıl'a erişim | Satış döngüsü | Öncelik |
+| Segment | Ağrı şiddeti | Bütçe | Ulaşılabilirlik | Satış döngüsü | Öncelik |
 |---|---|---|---|---|---|
 | Belediye Basın Yayın | Yüksek | Orta | Yüksek | 2-6 ay | **1** |
 | Üniversite | Orta-Yüksek | Orta | Çok yüksek | 3-9 ay | **2** |
@@ -181,7 +181,7 @@ Kullanıcı başı lisans yerine **depolama + kurulum modeli** önerilir. Bu, ra
 | **MEDAS Yerinde** | Büyükşehir, üniversite, kamu | Kurum sunucusuna kurulum, eğitim, veri aktarımı | Tek seferlik kurulum + yıllık bakım-destek |
 | **Ek hizmetler** | Tümü | Eski arşivin taranması ve aktarımı, dijitalleştirme, özel entegrasyon | Proje bazlı |
 
-Ek gelir kalemi: **arşiv aktarım hizmeti.** Kurumların harici disklerdeki 10-20 yıllık arşivi düzenleyip sisteme aktarmak, tek başına satılabilir bir hizmettir ve Mirakıl'ın dijitalleştirme deneyimine doğrudan uyar.
+Ek gelir kalemi: **arşiv aktarım hizmeti.** Kurumların harici disklerdeki 10-20 yıllık arşivi düzenleyip sisteme aktarmak, tek başına satılabilir bir hizmettir ve tarama/dijitalleştirme hizmetiyle genişletilebilir.
 
 Somut TL fiyatları için rakip tekliflerinin ve EKAP'ta "medya arşiv", "fotoğraf arşiv yazılımı", "dijital varlık yönetimi" anahtar kelimeleriyle geçmiş ihale bedellerinin taranması önerilir.
 
@@ -189,12 +189,12 @@ Somut TL fiyatları için rakip tekliflerinin ve EKAP'ta "medya arşiv", "fotoğ
 
 ## 7. Satış ve pazarlama kanalları
 
-1. **Mevcut müşteri ağı:** Koha / DSpace kullanan üniversite ve belediyelere ücretsiz pilot (3 ay, 500 GB).
+1. **Pilot programı:** Seçilen belediye ve üniversitelere ücretsiz pilot (3 ay, 500 GB).
 2. **Belediye birlikleri ve fuarlar:** Marmara Belediyeler Birliği, Türkiye Belediyeler Birliği etkinlikleri, Yerel Yönetimler fuarları.
 3. **Turizm fuarları:** EMITT, Travel Turkey İzmir; Antalya otelciler dernekleri (AKTOB vb.).
 4. **LinkedIn içerikleri:** "Önce / sonra" senaryoları, örnek arama videoları.
 5. **Basın müdürleri ağı:** Belediye basın müdürlerinin WhatsApp ve sektör buluşmaları. Bir referans, ikinci belediyeyi getirir.
-6. **Demo:** medas.mirakil.com üzerinde örnek arşivle canlı demo hesabı.
+6. **Demo:** Demo sunucusu üzerinde örnek arşivle canlı demo hesabı.
 
 ---
 
@@ -227,7 +227,7 @@ Bu konuda bir bilişim hukuku avukatından yazılı görüş alınması önerili
 
 ## 9. Sonraki adımlar
 
-1. medas.mirakil.com üzerinde örnek arşivle demo hesabı hazırlamak ve ekran görüntüleri almak.
+1. Demo sunucusu üzerinde örnek arşivle demo hesabı hazırlamak ve ekran görüntüleri almak.
 2. 3 pilot müşteri seçmek: 1 belediye, 1 üniversite, 1 otel grubu.
 3. AGPL ve KVKK için hukuki görüş almak.
 4. Rakip fiyatlarını ve EKAP ihale bedellerini toplamak, TL fiyat listesini netleştirmek.
