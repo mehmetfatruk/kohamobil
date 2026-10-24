@@ -52,11 +52,24 @@ Bynder, Canto, Adobe Experience Manager Assets, Brandfolder, Frontify. Güçlü 
 - Veri yurt dışında tutuluyor (kamu için engel).
 - Türkçe destek ve yerinde kurulum yok veya sınırlı.
 
-### 3.3 Fiili rakip: "hiçbir şey kullanmamak"
+### 3.3 Örnek alınan ürün: Ente (ente.com)
+
+Ente, uçtan uca şifreli ve açık kaynak (AGPL-3.0) bir fotoğraf yedekleme servisidir. Bireysel ve aile kullanıcısına yöneliktir, doğrudan rakip değildir. İletişim dili MEDAS için örnek alındı:
+
+- **Somut güven iddiası:** Her dosyanın 3 ayrı bulutta, 3 ayrı konumda saklanması (biri yeraltı sığınağında). MEDAS karşılığı: "Türkiye'de 3 kopya, 3 konum".
+- **Açık kaynağı güven argümanı yapmak:** Kod açık, denetlenmiş. MEDAS'ta AGPL zorunluluğu bu sayede avantaja döner: "Kaynak kodu müşterilerimize açıktır, kilitlenme yok."
+- **Şeffaf paketler ve ücretsiz başlangıç:** Depolama bazlı basit fiyat tablosu, ücretsiz katman, aylık/yıllık seçimi.
+- **Platform listesi:** Web, mobil ve masaüstü uygulamaları açıkça gösteriliyor.
+- **Kolay taşıma:** Google Fotoğraflar ve diğer servislerden içe aktarma vurgusu.
+- **Kullanıcı görüşleri:** Sosyal kanıt bölümü.
+
+Bu kalıplar web sayfası taslağına uyarlandı.
+
+### 3.4 Fiili rakip: "hiçbir şey kullanmamak"
 
 Gerçek rakip çoğu zaman yazılım değil, alışkanlıktır: harici disk, NAS klasörleri, Google Drive, WhatsApp. Satış konuşması "neden MEDAR değil MEDAS" sorusundan önce "neden bugünkü düzen sürdürülemez" sorusunu cevaplamalı.
 
-### 3.4 MEDAS'ın farklılaşma noktaları
+### 3.5 MEDAS'ın farklılaşma noktaları
 
 1. **Mirakıl müşteri ağı ve kamu deneyimi:** Kütüphane ve arşiv projelerinden gelen güven.
 2. **Yerinde kurulum + yerli bulut seçeneği:** Veri kurumda kalır.
@@ -232,6 +245,7 @@ Bu konuda bir bilişim hukuku avukatından yazılı görüş alınması önerili
 - [MarketsandMarkets: DAM pazarı 2031'de 14,51 milyar USD](https://www.marketsandmarkets.com/PressReleases/digital-asset-management.asp)
 - [Roots Analysis: DAM pazarı](https://www.rootsanalysis.com/digital-asset-management-dam-market)
 - [Technavio: DAM pazar analizi](https://technavio.com/report/digital-asset-management-market-industry-analysis)
+- [Ente](https://ente.io) ve [Ente özellikler](https://community.ente.io/features)
 - [Immich: FUTO two years later](https://immich.app/blog/futo-two-years-later)
 - [KVKK 2026/921 sayılı ilke kararı (Alomaliye)](https://www.alomaliye.com/2026/06/02/mesai-takibinde-biyometrik-veri-islenmesine-yeni-ilke-karari-kvkk/)
 - [Yerel yönetimlerde yapay zeka rehberi](https://www.yapayzekaokulum.com/blog/yerel-yonetimlerde-yapay-zeka)

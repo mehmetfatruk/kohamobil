@@ -235,6 +235,35 @@ textarea { min-height: 96px; resize: vertical; }
 .contact-lines dt { color: var(--muted); font-family: var(--font-mono); font-size: 12.5px; padding-top: 2px; }
 .contact-lines dd { margin: 0; user-select: all; }
 
+/* Ente'den uyarlanan bölümler */
+.platforms { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+.platforms span { font-family: var(--font-mono); font-size: 11.5px; color: var(--hero-muted); border: 1px solid var(--hero-line); border-radius: 4px; padding: 3px 8px; }
+.proof { background: var(--surface); border-bottom: 1px solid var(--line); }
+.proof-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; padding-block: 36px; }
+@media (max-width: 860px) { .proof-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.proof-grid div { display: grid; gap: 4px; }
+.proof-grid b { font-family: var(--font-display); font-size: 40px; font-weight: 800; color: var(--blue); line-height: 1; font-variant-numeric: tabular-nums; }
+.proof-grid span { font-size: 14px; color: var(--muted); }
+.trial { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 20px 24px; border: 1px dashed var(--blue); border-radius: var(--radius); margin-bottom: 20px; background: var(--blue-soft); }
+.trial b { font-family: var(--font-display); font-size: 18px; margin-right: 12px; }
+.trial span { color: var(--muted); font-size: 15px; }
+.billing { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); margin-bottom: 20px; }
+.billing button { font: 600 14px var(--font-display); border: 0; background: transparent; color: var(--muted); padding: 8px 16px; border-radius: 99px; cursor: pointer; }
+.billing button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.billing em { font-style: normal; font-size: 11px; color: var(--green-ink); margin-left: 4px; }
+.billing button[aria-pressed="true"] em { color: var(--green); }
+.tiers { display: grid; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.tiers div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; font-size: 14px; }
+.tiers div + div { border-top: 1px solid var(--line); }
+.tiers span { font-family: var(--font-mono); color: var(--muted); }
+.tiers b { font-family: var(--font-display); font-weight: 600; text-align: right; }
+.voices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 860px) { .voices { grid-template-columns: 1fr; } }
+.voices figure { margin: 0; padding: 24px; background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); display: grid; gap: 14px; }
+.voices blockquote { margin: 0; font-size: 17px; color: var(--muted); }
+.voices figcaption { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
+.draft-note { font-size: 14px !important; color: #92400E !important; background: #FEF3C7; padding: 6px 10px; border-radius: 6px; justify-self: start; }
+
 footer { border-top: 1px solid var(--line); padding-block: 32px; font-size: 13.5px; color: var(--muted); }
 footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .draft-flag { font-family: var(--font-mono); font-size: 11px; background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 4px; }
@@ -267,10 +296,13 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <a class="btn btn-ghost" href="#sektorler">Kullanım senaryoları</a>
       </div>
       <ul class="hero-facts">
+        <li>30 gün ücretsiz deneme</li>
         <li>Yerinde kurulum veya yerli bulut</li>
         <li>KVKK uyum paketi</li>
-        <li>iOS ve Android uygulaması</li>
       </ul>
+      <div class="platforms" aria-label="Desteklenen platformlar">
+        <span>Web</span><span>iOS</span><span>Android</span><span>Windows</span><span>macOS</span><span>Linux</span>
+      </div>
     </div>
 
     <div class="demo" aria-label="MEDAS arama örneği">
@@ -298,6 +330,15 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <button type="button" aria-pressed="false" data-q="3">Üniversite</button>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="proof">
+  <div class="wrap proof-grid">
+    <div><b>3</b><span>kopya, 3 ayrı konumda.<br>Bir veri merkezi çökse de arşiviniz yerinde.</span></div>
+    <div><b>%100</b><span>açık kaynak kod.<br>Kurumunuzun bilgi işlem ekibi inceleyebilir.</span></div>
+    <div><b>0</b><span>harici yapay zeka servisi.<br>Görseller sunucunuzdan çıkmaz.</span></div>
+    <div><b>81</b><span>ilin tamamında<br>uzaktan kurulum ve eğitim.</span></div>
   </div>
 </section>
 
@@ -367,7 +408,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <div class="feat">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg>
         <h3>Orijinal kalite</h3>
-        <p>RAW, JPEG, HEIC ve video dosyaları sıkıştırılmadan saklanır. Çekim bilgileri (EXIF) korunur.</p>
+        <p>RAW, JPEG, HEIC ve video dosyaları sıkıştırılmadan saklanır. Çekim bilgileri (EXIF) korunur, kopyalar tespit edilir.</p>
       </div>
       <div class="feat">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><path d="M15 17h4M17 15v4"/></svg>
@@ -380,9 +421,9 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <p>Kullanıcı bazında görüntüleme, yükleme ve paylaşım yetkisi. Kurumsal oturum açma (SSO) desteği.</p>
       </div>
       <div class="feat">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 9v11"/></svg>
-        <h3>Kopya tespiti</h3>
-        <p>Aynı fotoğrafın farklı kopyalarını bulur. Depolama alanından tasarruf sağlar.</p>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <h3>Geçmiş yıllarda bugün</h3>
+        <p>Her sabah, aynı gün önceki yıllarda çekilen kareler önünüze gelir. Sosyal medya ve yıl dönümü paylaşımları için hazır içerik.</p>
       </div>
     </div>
   </div>
@@ -431,19 +472,34 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <section class="section" id="kurulum" style="padding-top:0">
   <div class="wrap">
     <div class="section-head">
-      <span class="eyebrow">Kurulum modelleri</span>
+      <span class="eyebrow">Paketler</span>
       <h2>Kullanıcı başı lisans yok. Kurumun tamamı kullanır.</h2>
-      <p>Fiyatlandırma depolama hacmi ve kurulum modeline göre belirlenir.</p>
+      <p>Fiyat yalnızca depolama hacmine ve kurulum modeline göre belirlenir. Tüm özellikler her pakette açıktır.</p>
+    </div>
+    <div class="trial">
+      <div>
+        <b>Deneme</b>
+        <span>30 gün · 100 GB · 5 kullanıcı · kredi kartı gerekmez</span>
+      </div>
+      <a class="btn btn-primary" href="#demo">Ücretsiz başlayın</a>
+    </div>
+    <div class="billing" role="group" aria-label="Ödeme dönemi">
+      <button type="button" id="bill-m" aria-pressed="false" data-bill="m">Aylık</button>
+      <button type="button" id="bill-y" aria-pressed="true" data-bill="y">Yıllık <em>2 ay hediye</em></button>
     </div>
     <div class="deploy">
       <div class="plan">
         <span class="for">Organizasyon firmaları · butik oteller</span>
         <h3>MEDAS Bulut</h3>
+        <div class="tiers" aria-label="Depolama seçenekleri">
+          <div><span>1 TB</span><b data-m="[₺ / ay]" data-y="[₺ / yıl]">[₺ / yıl]</b></div>
+          <div><span>2 TB</span><b data-m="[₺ / ay]" data-y="[₺ / yıl]">[₺ / yıl]</b></div>
+          <div><span>5 TB</span><b data-m="[₺ / ay]" data-y="[₺ / yıl]">[₺ / yıl]</b></div>
+        </div>
         <ul>
           <li>Türkiye'deki veri merkezinde barındırma</li>
-          <li>1 TB'tan başlayan depolama</li>
+          <li>Sınırsız kullanıcı</li>
           <li>Süreli paylaşım bağlantıları</li>
-          <li>Mobil uygulama</li>
           <li>Aynı gün kullanıma hazır</li>
         </ul>
         <div class="price">Aylık veya yıllık abonelik</div>
@@ -452,6 +508,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <span class="badge">Kamu için önerilen</span>
         <span class="for">Belediyeler · üniversiteler · kamu kurumları</span>
         <h3>MEDAS Yerinde</h3>
+        <div class="tiers" aria-label="Depolama seçenekleri">
+          <div><span>Depolama</span><b>Kurumun donanımı</b></div>
+          <div><span>Kurulum</span><b>Tek seferlik</b></div>
+          <div><span>Destek</span><b>Yıllık</b></div>
+        </div>
         <ul>
           <li>Kurumunuzun sunucusuna kurulum</li>
           <li>Veri kurum dışına çıkmaz</li>
@@ -464,6 +525,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <div class="plan">
         <span class="for">Otel grupları · holdingler</span>
         <h3>MEDAS Kurumsal Bulut</h3>
+        <div class="tiers" aria-label="Depolama seçenekleri">
+          <div><span>10 TB</span><b data-m="[₺ / ay]" data-y="[₺ / yıl]">[₺ / yıl]</b></div>
+          <div><span>20 TB</span><b data-m="[₺ / ay]" data-y="[₺ / yıl]">[₺ / yıl]</b></div>
+          <div><span>50 TB +</span><b data-m="Teklif" data-y="Teklif">Teklif</b></div>
+        </div>
         <ul>
           <li>Kuruma özel sunucu</li>
           <li>5 TB ve üzeri depolama</li>
@@ -487,7 +553,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <div class="trust-grid">
       <div class="trust-item">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
-        <div><h3>Yurt içinde barındırma</h3><p>Yerinde kurulumda veri kurumunuzun sunucusunda, bulut paketinde Türkiye'deki veri merkezinde tutulur.</p></div>
+        <div><h3>Yurt içinde, 3 kopya</h3><p>Bulut paketlerinde her dosya Türkiye'deki 3 ayrı konumda saklanır. Yerinde kurulumda 3-2-1 yedekleme planını birlikte kurarız.</p></div>
       </div>
       <div class="trust-item">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>
@@ -499,7 +565,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       </div>
       <div class="trust-item">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
-        <div><h3>Açık kaynak altyapı</h3><p>MEDAS, açık kaynak Immich projesi üzerine geliştirilmiştir. Dosyalarınız standart formatta saklanır, istediğiniz an dışa aktarılır.</p></div>
+        <div><h3>Açık kaynak, kilitlenme yok</h3><p>MEDAS, açık kaynak Immich projesi üzerine geliştirilmiştir. Kaynak kodu müşterilerimize açıktır. Dosyalarınız standart formatta saklanır, istediğiniz an dışa aktarılır.</p></div>
       </div>
     </div>
   </div>
@@ -530,6 +596,21 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
   </div>
 </section>
 
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Kullanıcılarımız</span>
+      <h2>Pilot kurumlardan görüşler</h2>
+      <p class="draft-note">Taslak: pilot kurulumlardan gelecek gerçek görüşler ve kurum logoları bu alana eklenecek.</p>
+    </div>
+    <div class="voices">
+      <figure><blockquote>[Pilot belediye Basın Yayın Müdürü görüşü]</blockquote><figcaption>[Ad Soyad] · [Belediye]</figcaption></figure>
+      <figure><blockquote>[Pilot üniversite Kurumsal İletişim görüşü]</blockquote><figcaption>[Ad Soyad] · [Üniversite]</figcaption></figure>
+      <figure><blockquote>[Pilot otel grubu Pazarlama Müdürü görüşü]</blockquote><figcaption>[Ad Soyad] · [Otel grubu]</figcaption></figure>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="sss" style="padding-top:0">
   <div class="wrap">
     <div class="section-head">
@@ -537,7 +618,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <h2>Merak edilenler</h2>
     </div>
     <div class="faq">
-      <details><summary>Eski arşivimizi sisteme nasıl aktarırız?</summary><p>Harici disk, NAS veya bulut klasörlerindeki arşivi Mirakıl ekibi aktarır. Klasör yapısı albümlere dönüştürülür, çekim tarihleri ve konum bilgileri korunur.</p></details>
+      <details><summary>Eski arşivimizi sisteme nasıl aktarırız?</summary><p>Harici disk, NAS, Google Fotoğraflar, Google Drive veya OneDrive'daki arşivi Mirakıl ekibi aktarır. Klasör yapısı albümlere dönüştürülür, çekim tarihleri ve konum bilgileri korunur.</p></details>
+      <details><summary>MEDAS'tan ayrılmak istersek verilerimize ne olur?</summary><p>Tüm dosyalar orijinal hâliyle ve klasör yapısıyla size teslim edilir. Açık kaynak altyapı sayesinde sistemi kendi ekibinizle çalıştırmaya da devam edebilirsiniz.</p></details>
       <details><summary>Ne kadar depolama alanına ihtiyacımız var?</summary><p>Bir ilçe belediyesi yılda ortalama 1 ile 3 TB arası fotoğraf ve video üretir. İhtiyaç analizinde mevcut arşivinizi ölçer, büyüme planını birlikte çıkarırız.</p></details>
       <details><summary>Yapay zeka verilerimizi dışarı gönderiyor mu?</summary><p>Hayır. Arama ve yüz tanıma modelleri MEDAS sunucusunda çalışır. Görseller herhangi bir harici yapay zeka servisine gönderilmez.</p></details>
       <details><summary>İnternet kesildiğinde sistem çalışır mı?</summary><p>Yerinde kurulumda MEDAS kurum ağı içinde çalışmaya devam eder. Dış erişim yalnızca paylaşım bağlantıları için gerekir.</p></details>
@@ -713,6 +795,15 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); var n = (cur - 1 + sectors.length) % sectors.length; pick(n); list.children[n].focus(); }
   });
   pick(0);
+
+  // Aylık / yıllık fiyat seçimi
+  document.querySelectorAll('.billing button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.dataset.bill;
+      document.querySelectorAll('.billing button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      document.querySelectorAll('.tiers b[data-' + k + ']').forEach(function (el) { el.textContent = el.dataset[k]; });
+    });
+  });
 
   // Form (taslak: sunucuya gönderilmez)
   var form = document.getElementById('demoForm'), ok = document.getElementById('formOk');
